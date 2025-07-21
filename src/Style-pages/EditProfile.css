@@ -1,130 +1,26 @@
-/* Background with puzzle image */
-.puzzle-bg {
-  background-image: url("/bg4.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 66.5vh;
-  width: 100%;
-  padding: 2rem 1rem;
+.edit-profile-card {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  padding: 2rem;
+  transition: box-shadow 0.3s ease;
 }
 
-/* Wrapper to center the card */
-.edit-card-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.marg {
-  margin-bottom: 100px !important;
+.edit-profile-card:hover {
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
 }
 
-/* Card design */
-.edit-card {
-  max-width: 500px;
-  width: 100%;
-  background-color: #fff !important;
-  border-radius: 1.5rem !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-}
-
-/* Avatar styling */
-.avatar-img {
-  width: 90px;
-  height: 90px;
-  object-fit: cover;
-  border: 3px solid #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Save Button */
-.save-btn {
-  background-color: #1a237e;
-  color: white !important;
-  border-radius: 12px;
-  padding: 10px 0;
-  font-weight: 500;
-  transition: background-color 0.3s ease;
-}
-
-.save-btn:hover {
-  background-color: #0d154d;
-}
-
-/* Input group */
-.input-group-text {
-  background-color: #eef1f8;
-  border: none;
-  border-radius: 10px 0 0 10px;
-}
-
-.icon {
-  width: 30px;
-}
-
-.form-control {
-  border-radius: 0 10px 10px 0;
-  border: none;
+.edit-profile-card input,
+.edit-profile-card textarea {
   background-color: #f9f9f9;
+  border-color: #dcdcdc;
+  font-size: 0.95rem;
 }
 
-/* Header styling */
-.profile-header {
-  background-color: #cddafd;
-  padding: 15px;
+.edit-profile-card h4 {
+  font-size: 1.4rem;
 }
 
-.title {
-  margin: 0;
-  font-weight: bold;
-  color: #1a237e;
-}
-
-.header-icons img {
-  width: 40px;
-  height: 40px;
-}
-
-/* Modal specific styles */
-.modal-overlay {
-  backdrop-filter: blur(5px);
-}
-
-/* Custom cancel button styling */
-.cancel-btn-white {
-  background-color: white !important;
-  border-color: #dee2e6 !important;
-  color: #6c757d !important;
-}
-
-.cancel-btn-white:hover {
-  background-color: #f8f9fa !important;
-  border-color: #dee2e6 !important;
-  color: #6c757d !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 576px) {
-  .edit-card {
-    padding: 1rem !important;
-    border-radius: 30px !important;
-  }
-
-  .avatar-img {
-    width: 70px;
-    height: 70px;
-  }
-
-  .icon {
-    width: 24px;
-  }
-
-  .header-icons img {
-    width: 32px;
-    height: 32px;
-  }
-
-  .title {
-    font-size: 1.2rem;
-  }
+button[type="submit"] {
+  font-weight: 500;
+  font-size: 1rem;
 }

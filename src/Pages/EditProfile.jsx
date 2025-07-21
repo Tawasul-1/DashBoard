@@ -1,261 +1,129 @@
-import React, { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
+// src/Style-pages/EditProfile.jsx
+import React, { useState } from "react";
+import { Container, Form, Button, Row, Col, Card } from "react-bootstrap";
+import { FaUserEdit } from "react-icons/fa";
+import Sidebar from "../Components/Sidebar";
 import "../Style-pages/EditProfile.css";
-import { userService } from "../api/services/UserService";
-import useApi from "../api/hooks/useApi";
 
-function EditProfileModal({ isOpen, onClose, userProfile, onProfileUpdate }) {
-  const [profileImage, setProfileImage] = useState("/image-2.png");
+const EditProfile = () => {
   const [formData, setFormData] = useState({
-    first_name: "",
-    last_name: "",
-    email: "",
-    phone: "",
-    birth_date: "",
+    name: "Youmna Khalil",
+    email: "youmna@example.com",
+    phone: "+20 123 456 7890",
+    location: "Cairo, Egypt",
+    bio: "Frontend Developer passionate about accessibility, performance, and great UI/UX.",
   });
 
-  const {
-    data: updateResponse,
-    error: updateError,
-    loading: updateLoading,
-    request: updateProfile,
-  } = useApi(userService.updateProfile);
-
-  useEffect(() => {
-    if (userProfile) {
-      setFormData({
-        first_name: userProfile.first_name || "",
-        last_name: userProfile.last_name || "",
-        email: userProfile.email || "",
-        phone: userProfile.phone || "",
-        birth_date: userProfile.birth_date ? userProfile.birth_date.split("T")[0] : "",
-      });
-      setProfileImage(userProfile.profile_picture || "/image-2.png");
-    }
-  }, [userProfile]);
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setProfileImage(URL.createObjectURL(file));
-    }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      await updateProfile(formData);
-      if (onProfileUpdate) {
-        onProfileUpdate();
-      }
-      onClose();
-    } catch (error) {
-      console.error("Error updating profile:", error);
-    }
+    alert("✅ Profile updated successfully!");
   };
-
-  if (!isOpen) return null;
 
   return (
-    <div
-      className="modal-overlay"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1050,
-        padding: "1rem",
-        borderRadius: "10px",
-      }}
-    >
-      <div
-        className="edit-card bg-white p-4 shadow-lg"
-        style={{
-          maxWidth: "500px",
-          width: "100%",
-          maxHeight: "90vh",
-          overflowY: "auto",
-          position: "relative",
-        }}
-      >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: "1rem",
-            right: "1rem",
-            background: "none",
-            border: "none",
-            fontSize: "1.5rem",
-            cursor: "pointer",
-            color: "#666",
-            zIndex: 1,
-          }}
-        >
-          ×
-        </button>
+    <div className="dashboard-wrapper d-flex bg-light min-vh-100">
+      <Sidebar />
 
-        {/* Profile Image */}
-        <div className="position-relative text-center mb-4">
-          <img
-            src={profileImage}
-            alt="avatar"
-            className="rounded-circle border border-3"
-            style={{ width: "130px", height: "130px", objectFit: "cover" }}
-          />
-          <input
-            type="file"
-            accept="image/*"
-            id="upload-avatar"
-            onChange={handleImageChange}
-            style={{ display: "none" }}
-          />
-          <label
-            htmlFor="upload-avatar"
-            className="position-absolute bottom-0 end-50 translate-middle-x"
-            style={{
-              backgroundColor: "#173067",
-              color: "#fff",
-              borderRadius: "50%",
-              width: "36px",
-              height: "36px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "1rem",
-              cursor: "pointer",
-              border: "2px solid white",
-            }}
-            title="Change Photo"
-          >
-            📷
-          </label>
-        </div>
+      <div className="main-content flex-grow-1 p-4">
+        <Container>
+          <Card className="edit-profile-card shadow rounded-4 border-0 p-4">
+            <div className="d-flex align-items-center mb-4">
+              <FaUserEdit className="text-primary fs-4 me-2" />
+              <h4 className="mb-0 fw-semibold">Edit Profile</h4>
+            </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3 input-group">
-            <span className="input-group-text">
-              <img className="icon" src="/Profile.png" alt="" />
-            </span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="First Name"
-              name="first_name"
-              value={formData.first_name}
-              onChange={handleInputChange}
-            />
-          </div>
+            <Form onSubmit={handleSubmit}>
+              <Row>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold small text-muted">Full Name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      placeholder="Enter your name"
+                      className="rounded-3 p-2"
+                      required
+                    />
+                  </Form.Group>
+                </Col>
 
-          <div className="mb-3 input-group">
-            <span className="input-group-text">
-              <img className="icon" src="/Profile.png" alt="" />
-            </span>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Last Name"
-              name="last_name"
-              value={formData.last_name}
-              onChange={handleInputChange}
-            />
-          </div>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold small text-muted">Email Address</Form.Label>
+                    <Form.Control
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="you@example.com"
+                      className="rounded-3 p-2"
+                      required
+                    />
+                  </Form.Group>
+                </Col>
 
-          <div className="mb-3 input-group">
-            <span className="input-group-text">
-              <img className="icon" src="/Email.png" alt="" />
-            </span>
-            <input
-              type="email"
-              className="form-control"
-              placeholder="Email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-            />
-          </div>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold small text-muted">Phone</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="Phone number"
+                      className="rounded-3 p-2"
+                    />
+                  </Form.Group>
+                </Col>
 
-          <div className="mb-3 input-group">
-            <span className="input-group-text">
-              <img className="icon" src="/Phone.png" alt="" />
-            </span>
-            <input
-              type="tel"
-              className="form-control"
-              placeholder="Phone Number"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-            />
-          </div>
+                <Col md={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold small text-muted">Location</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      placeholder="City, Country"
+                      className="rounded-3 p-2"
+                    />
+                  </Form.Group>
+                </Col>
 
-          <div className="mb-4 input-group">
-            <span className="input-group-text">
-              <img className="icon" src="/Age.png" alt="" />
-            </span>
-            <input
-              type="date"
-              className="form-control"
-              placeholder="Birth Date"
-              name="birth_date"
-              value={formData.birth_date}
-              onChange={handleInputChange}
-            />
-          </div>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="fw-semibold small text-muted">Bio</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      name="bio"
+                      rows={4}
+                      value={formData.bio}
+                      onChange={handleChange}
+                      placeholder="Tell us about yourself..."
+                      className="rounded-3 p-2"
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
 
-          {updateError && <div className="alert alert-danger mb-3">{updateError}</div>}
-
-          <div className="d-flex gap-2">
-            <Button
-              type="button"
-              className="flex-fill"
-              variant="outline-secondary"
-              style={{
-                backgroundColor: "white",
-                borderColor: "#dee2e6",
-                color: "#6c757d",
-              }}
-              onClick={onClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="flex-fill"
-              style={{ backgroundColor: "#173067", borderColor: "#173067" }}
-              disabled={updateLoading}
-            >
-              {updateLoading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
-                  Saving...
-                </>
-              ) : (
-                "Save"
-              )}
-            </Button>
-          </div>
-        </form>
+              <div className="text-end">
+                <div className="text-center">
+                  <Button type="submit" variant="primary" className="rounded-pill px-4 py-2 mt-2">
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            </Form>
+          </Card>
+        </Container>
       </div>
     </div>
   );
-}
+};
 
-export default EditProfileModal;
-
+export default EditProfile;

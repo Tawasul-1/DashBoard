@@ -1,0 +1,75 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+/* Navbar */
+.top-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1040;
+  width: 100%;
+  background-color: #d1dbfe; /* ثابت مش bg-primary عشان نتحكم فيه */
+  color: white;
+}
+
+/* Common sidebar styling */
+.sidebar {
+  background-color: #d1dbfe;
+  width: 260px;
+  padding: 1rem;
+  height: 100vh;
+  z-index: 1050;
+  overflow-y: auto;
+}
+
+/* Desktop view: sidebar always visible */
+.desktop-show {
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+/* Mobile view: hidden by default */
+.mobile-hide {
+  display: none;
+}
+
+.mobile-show {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+/* Overlay background (for mobile only) */
+.overlay-background {
+  position: fixed;
+  top: 0;
+  left: 260px;
+  width: calc(100% - 260px);
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+}
+
+@media (max-width: 749px) {
+  .desktop-show {
+    display: none !important;
+  }
+
+  .top-navbar {
+    position: fixed;
+    left: 0;
+  }
+}
+
+.btn1{
+  width: 20px;
+  height: 40px;
+  background-color: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+}

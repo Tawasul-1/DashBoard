@@ -1,0 +1,100 @@
+.dashboard-wrapper {
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 250px;
+  background-color: #d4dcf8;
+  min-height: 100vh;
+}
+
+.sidebar .nav-link {
+  padding: 12px 20px;
+  border-radius: 16px;
+  margin-bottom: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #173067;
+}
+
+@media (min-width: 750px) {
+  .main-content {
+    margin-left: 260px; /* نفس عرض السايدبار */
+  }
+}
+.sidebar .nav-link.active {
+  background-color: #173067;
+  color: white;
+}
+
+.stats-card {
+  border: none;
+  border-radius: 20px;
+  padding: 20px;
+  text-align: center;
+  color: #173067;
+  font-weight: bold;
+}
+
+.stats-card h3 {
+  font-size: 2rem;
+}
+
+.stats-card.peach {
+  background-color: #ffe5e5;
+}
+
+.stats-card.yellow {
+  background-color: #fff1cc;
+}
+
+.stats-card.green {
+  background-color: #e7f7f0;
+}
+
+.stats-card.blue-light {
+  background-color: #e0f4fc;
+}
+
+.stats-card.blue {
+  background-color: #e1ebfb;
+}
+
+.action-card {
+  border: none;
+  border-radius: 20px;
+  text-align: center;
+  padding: 20px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.action-card p {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.action-card.yellow {
+  background-color: #fff2cc;
+}
+
+.action-card.blue-light {
+  background-color: #e0f4fc;
+}
+
+.action-card.green {
+  background-color: #d6f5d6;
+}
+
+.action-card.purple {
+  background-color: #e6e6ff;
+}
+
+@media (max-width: 749px) {
+  .main-content {
+    margin-top: 70px; /* أو أي قيمة تناسب ارتفاع الـ Navbar */
+  }
+}

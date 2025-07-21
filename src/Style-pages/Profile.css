@@ -1,134 +1,46 @@
-/* ===== Header ===== */
-.profile-header {
-  background-color: #cddafd;
-  padding: 15px 0;
-}
-
-.title {
-  margin: 0;
-  font-weight: bold;
-  color: #173067 !important;
-}
-
-.header-icons img {
-  width: 40px;
-  height: 40px;
-}
-
-/* ===== Sidebar Card ===== */
 .profile-card {
-  background-color: #d1dbfe;
-  padding: 20px;
-  border-radius: 40px;
+  background: #fff;
+  border-radius: 1rem;
+  transition: all 0.3s ease-in-out;
 }
 
-.profile-img {
-  border-radius: 50%;
+.profile-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 81, 132, 0.15);
 }
 
-/* ===== Section Title ===== */
-.section-title {
-  font-weight: bold;
-  font-size: 30px;
-  color: #173067;
+.profile-info p {
   margin-bottom: 10px;
+  font-size: 1rem;
+}
+#prmary {
+  border: 1px solid #173067 !important;
+  color: #173067 !important;
+  background-color: white !important;
+}
+#prmary:hover {
+  background-color: #173067 !important;
+  color: white;
 }
 
-/* ===== Category Boxes ===== */
-.category-box {
-  padding: 40px 100px;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: bold;
-  background-color: #f0f0f0;
+
+/* Adjust main content padding with sidebar */
+@media (min-width: 750px) {
+  .main-content {
+    margin-left: 260px; /* match sidebar width */
+  }
 }
 
-.light-blue {
-  background-color: #e9f2fe;
-}
+@media (max-width: 749px) {
+  .main-content {
+    margin-top: 70px; /* match top navbar height */
+  }
 
-.light-red {
-  background-color: #ffe0e0;
-}
+  .profile-card {
+    padding: 1.5rem;
+  }
 
-.light-yellow {
-  background-color: #fff1d5;
-}
-
-.light-green {
-  background-color: #e4f8f0;
-}
-
-.category-box img {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 8px;
-}
-.category-box p {
-  color: black !important;
-}
-/* ===== Food Cards (Behance style) ===== */
-.mt-4 {
-  font-weight: bold;
-  font-size: 30px;
-  color: #173067;
-  margin-bottom: 10px;
-}
-.fork-img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  margin-bottom: 10px;
-}
-.food-card {
-  width: 100%;
-  background-color: #e9f2fe;
-  padding: 15px;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  cursor: pointer;
-}
-
-.food-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
-}
-
-.food-card img {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  margin-bottom: 10px;
-}
-
-.food-card p {
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: black !important;
-}
-
-.food-card .btn {
-  font-size: 13px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background-color: #ff0004;
-  color: white !important;
-}
-
-.category-box img {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 30px;
-}
-/* edit button */
-.btn-primary {
-  color: #d4e2f6 !important;
-  background-color: #204087 !important;
-  border-color: none;
-  padding: 1rem !important;
+  .profile-info p {
+    font-size: 0.95rem;
+  }
 }

@@ -1,288 +1,96 @@
-import { useState } from "react";
-import { Container, Row, Col, Form, Button, Card, InputGroup, Alert } from "react-bootstrap";
-import { FaEnvelope, FaLock } from "react-icons/fa";
-import { IoEyeSharp, IoEyeOffSharp } from "react-icons/io5";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Button, Form, Container, Row, Col, Card } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
 import "../Style-pages/Login.css";
-import { authService } from "../api/services/AuthenticationService";
-import { decodeJWT } from "../utils/tokenExtractor";
-import { useAuth } from "../context/AuthContext";
 
-function Login() {
+const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { login } = useAuth();
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({});
-
-  // Debug: Log errors whenever they change
-  console.log("Current errors state:", errors);
-  const [generalError, setGeneralError] = useState("");
-  const [loading, setLoading] = useState(false);
-
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    remember: false,
   });
 
-  // Get the intended destination from location state
-  const from = location.state?.from?.pathname || "/board";
-
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: type === "checkbox" ? checked : value,
     }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-    // Clear general error when user starts typing
-    if (generalError) {
-      setGeneralError("");
-    }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Email validation
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
-    }
-
-    // Password validation
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setGeneralError("");
-    setLoading(true);
-
-    if (!validateForm()) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const credentials = {
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password,
-      };
-
-      console.log("Sending login request:", credentials);
-
-      const response = await authService.login(credentials);
-
-      console.log("Login successful:", response.data);
-      console.log("Response data structure:", Object.keys(response.data));
-
-      // Use the AuthContext login function
-      if (response.data?.access) {
-        const userData = decodeJWT(response.data.access);
-        login(userData || null, response.data.access, response.data.refresh);
-        console.log("Access token stored successfully:", response.data.access);
-
-        // Also store refresh token if available
-        if (response.data?.refresh) {
-          console.log("Refresh token stored successfully");
-        }
-
-        if (response.data.user) {
-          console.log("User data stored:", response.data.user);
-        }
-      } else if (response.data?.token) {
-        login(response.data.user || null, response.data.token);
-        console.log("Token stored successfully:", response.data.token);
-        if (response.data.user) {
-          console.log("User data stored:", response.data.user);
-        }
-      } else if (response.data?.access_token) {
-        login(response.data.user || null, response.data.access_token);
-        console.log("Access token stored successfully:", response.data.access_token);
-        if (response.data.user) {
-          console.log("User data stored:", response.data.user);
-        }
-      } else {
-        console.warn("No token found in response:", response.data);
-        console.log("Available keys in response:", Object.keys(response.data));
-      }
-
-      // Redirect to the intended page or default to board
-      navigate(from, { replace: true });
-    } catch (error) {
-      console.error("Login failed:", error);
-
-      if (error.response?.data) {
-        const serverErrors = error.response.data;
-        console.error("Server errors:", serverErrors);
-
-        // Handle different types of server errors
-        if (typeof serverErrors === "object") {
-          // Check for 'detail' field (common in Django REST framework)
-          if (serverErrors.detail) {
-            setGeneralError(serverErrors.detail);
-          } else {
-            // Handle field-specific errors (arrays of error messages)
-            const processedErrors = {};
-            Object.keys(serverErrors).forEach((key) => {
-              if (Array.isArray(serverErrors[key])) {
-                processedErrors[key] = serverErrors[key][0]; // Take first error message
-              } else {
-                processedErrors[key] = serverErrors[key];
-              }
-            });
-            console.log("Processed errors:", processedErrors);
-            setErrors(processedErrors);
-          }
-        } else if (typeof serverErrors === "string") {
-          setGeneralError(serverErrors);
-        } else {
-          setGeneralError("Login failed. Please try again.");
-        }
-      } else if (error.message) {
-        setGeneralError(error.message);
-      } else {
-        setGeneralError("Login failed. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
+    console.log("Login Data:", formData);
+    navigate("/");
   };
 
   return (
-    <Container
-      fluid
-      className="d-flex px-5 justify-content-center align-items-center background"
-      style={{ height: "100vh", background: "#D4E2F6" }}
-    >
-      <Row className="w-100 justify-content-center align-items-center">
-        <Col md={7} xl={4}>
-          <Card style={{ width: "100%", maxWidth: "550px", borderRadius: "2rem", padding: "2rem" }}>
-            <Row className="mb-4">
-              <Col>
-                <h2 className="text-center">Login to your account</h2>
-              </Col>
-            </Row>
-            {generalError && (
-              <Alert variant="danger" className="text-center">
-                {generalError}
-              </Alert>
-            )}
+    <div className="login-page d-flex align-items-center justify-content-center vh-100 bg-light">
+      <Container>
+        <Row className="justify-content-center">
+          <Col md={6} lg={5}>
+            <Card className="shadow rounded-4 p-4">
+              <h3 className="text-center mb-4">Login</h3>
+              <Form onSubmit={handleSubmit} autoComplete="off">
+                <Form.Group className="mb-3" controlId="formEmail">
+                  <Form.Label>Email address</Form.Label>
+                  <Form.Control
+                    className="p-2"
+                    type="email"
+                    name="email"
+                    placeholder="Enter email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                  />
+                </Form.Group>
 
-            {location.state?.from && (
-              <Alert variant="info" className="text-center">
-                Please log in to access the requested page.
-              </Alert>
-            )}
+                <Form.Group className="mb-3" controlId="formPassword">
+                  <Form.Label>Password</Form.Label>
+                  <Form.Control
+                    className="p-2"
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                </Form.Group>
 
-            <Form onSubmit={handleSubmit} noValidate>
-              <Row className="mb-3">
-                <Col md={12} className="mb-3 mb-md-0">
-                  <Form.Group controlId="formEmail">
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <i className="bi bi-envelope-fill"></i>
-                      </InputGroup.Text>
-                      <Form.Control
-                        type="email"
-                        placeholder="Email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        isInvalid={!!errors.email}
-                        required
-                      />
-                    </InputGroup>
-                    {errors.email && (
-                      <Form.Control.Feedback type="invalid" className="d-block">
-                        {errors.email}
-                      </Form.Control.Feedback>
-                    )}
-                  </Form.Group>
-                </Col>
-              </Row>
+                <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
+                  <Form.Check
+                    type="checkbox"
+                    name="remember"
+                    label="Remember me"
+                    checked={formData.remember}
+                    onChange={handleChange}
+                  />
+                  <Link to="/forgot" className="text-decoration-none small">
+                    Forgot password?
+                  </Link>
+                </Form.Group>
 
-              <Row className="mb-3">
-                <Col md={12} className="mb-3 mb-md-0">
-                  <Form.Group controlId="formPassword">
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <i className="bi bi-lock-fill"></i>
-                      </InputGroup.Text>
-                      <Form.Control
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        isInvalid={!!errors.password}
-                        required
-                      />
-                      <InputGroup.Text
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
-                      </InputGroup.Text>
-                    </InputGroup>
-                    {errors.password && (
-                      <Form.Control.Feedback type="invalid" className="d-block">
-                        {errors.password}
-                      </Form.Control.Feedback>
-                    )}
-                  </Form.Group>
-                </Col>
-              </Row>
+                <Button variant="primary" type="submit" className="w-100 rounded-3">
+                  Login
+                </Button>
 
-              <Row className="mb-3">
-                <Col className="text-center">
-                  <Button type="submit" className="w-75" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <span
-                          className="spinner-border spinner-border-sm me-2"
-                          aria-hidden="true"
-                        ></span>
-                        Logging In...
-                      </>
-                    ) : (
-                      "Log In"
-                    )}
-                  </Button>
-                </Col>
-              </Row>
-            </Form>
-
-            <Row>
-              <Col className="text-center">
-                <p>
-                  Don't have an account? <Link to="/signup">Sign Up</Link>
-                </p>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-        <Col md={5} xl={3} className="d-flex justify-content-center">
-          <img
-            src="/image-1.png"
-            alt="Login Illustration"
-            className="img-fluid ms-auto mb-4 d-none d-md-block"
-            style={{ width: "100%", maxWidth: "600px", height: "auto" }}
-          />
-        </Col>
-      </Row>
-    </Container>
+                <div className="text-center mt-3">
+                  <span className="small">
+                    Don’t have an account?{" "}
+                    <Link to="/signup" className="text-decoration-none">
+                      Sign Up
+                    </Link>
+                  </span>
+                </div>
+              </Form>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
   );
-}
+};
 
 export default Login;
