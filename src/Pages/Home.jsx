@@ -63,7 +63,7 @@ const Home = () => {
             </Link>
           </Col>
 
-          <Col md={4}>
+          {/* <Col md={4}>
            <Link to="/sent" className="text-decoration-none">
             <Card className="stats-card blue-light">
               <Card.Body>
@@ -72,9 +72,9 @@ const Home = () => {
               </Card.Body>
             </Card>
             </Link>
-          </Col>
+          </Col> */}
 
-          <Col md={6}>
+          <Col md={4}>
            <Link to="/user" className="text-decoration-none">
             <Card className="stats-card green">
               <Card.Body>
@@ -85,7 +85,7 @@ const Home = () => {
             </Link>
           </Col>
 
-          <Col md={6}>
+          {/* <Col md={6}>
            <Link to="/" className="text-decoration-none">
             <Card className="stats-card blue">
               <Card.Body>
@@ -94,7 +94,7 @@ const Home = () => {
               </Card.Body>
             </Card>
             </Link>
-          </Col>
+          </Col> */}
         </Row>
 
         {/* Manage PECS Cards */}

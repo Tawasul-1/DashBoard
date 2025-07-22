@@ -5,12 +5,16 @@ import Sidebar from "../Components/Sidebar";
 
 const initialCards = [
   {
-    image: "https://via.placeholder.com/100?text=Apple",
+    image: "./Apple.png",
     label: "Apple",
+    labelar: "تفاح",
+    category: "Food",
   },
   {
-    image: "https://via.placeholder.com/100?text=Car",
-    label: "Car",
+    image: "./Books.png",
+    label: "Book",
+    labelar: "كتاب",
+    category: "Vehicle",
   },
 ];
 
@@ -19,19 +23,19 @@ const Cards = () => {
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
-  const [editedLabel, setEditedLabel] = useState("");
   const [editedImage, setEditedImage] = useState("");
-  const [editedImageFile, setEditedImageFile] = useState(null); // New
+  const [editedImageFile, setEditedImageFile] = useState(null);
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newLabel, setNewLabel] = useState("");
+  const [newLabelar, setNewLabelar] = useState("");
   const [newImageFile, setNewImageFile] = useState(null);
+  const [newCategory, setNewCategory] = useState(""); // ✅ Dropdown category
 
   const handleEdit = (card, index) => {
     setSelectedCard(index);
-    setEditedLabel(card.label);
     setEditedImage(card.image);
-    setEditedImageFile(null); // Reset
+    setEditedImageFile(null);
     setShowEditModal(true);
   };
 
@@ -44,8 +48,8 @@ const Cards = () => {
   const handleSaveEdit = () => {
     const updatedCards = [...cards];
     updatedCards[selectedCard] = {
+      ...updatedCards[selectedCard],
       image: editedImageFile ? URL.createObjectURL(editedImageFile) : editedImage,
-      label: editedLabel,
     };
     setCards(updatedCards);
     setShowEditModal(false);
@@ -53,14 +57,18 @@ const Cards = () => {
   };
 
   const handleAddNewCard = () => {
-    if (newLabel && newImageFile) {
+    if (newLabel && newLabelar && newImageFile && newCategory) {
       const newCard = {
         label: newLabel,
+        labelar: newLabelar,
         image: URL.createObjectURL(newImageFile),
+        category: newCategory,
       };
       setCards([...cards, newCard]);
       setNewLabel("");
+      setNewLabelar("");
       setNewImageFile(null);
+      setNewCategory("");
       setShowAddModal(false);
     }
   };
@@ -72,7 +80,11 @@ const Cards = () => {
         <Container>
           <div className="d-flex justify-content-between align-items-center mb-4">
             <h2 className="mb-0">PECS Cards</h2>
-            <Button variant="success" onClick={() => setShowAddModal(true)}>
+            <Button
+              style={{ width: "200px" }}
+              variant="primary text-white"
+              onClick={() => setShowAddModal(true)}
+            >
               ➕ Add New Card
             </Button>
           </div>
@@ -90,12 +102,12 @@ const Cards = () => {
                       />
                     </div>
                     <Card.Text className="fw-semibold">{card.label}</Card.Text>
+                    <Card.Text className="fw-semibold">{card.labelar}</Card.Text>
+                    {card.category && (
+                      <Card.Text className="text-muted small">Category: {card.category}</Card.Text>
+                    )}
                     <div className="d-flex justify-content-center flex-wrap gap-2 mt-3">
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        onClick={() => handleEdit(card, index)}
-                      >
+                      <Button id="prmary" size="sm" onClick={() => handleEdit(card, index)}>
                         Edit
                       </Button>
                       <Button
@@ -120,14 +132,6 @@ const Cards = () => {
           </Modal.Header>
           <Modal.Body>
             <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Label</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={editedLabel}
-                  onChange={(e) => setEditedLabel(e.target.value)}
-                />
-              </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Current Image</Form.Label>
                 <div className="mb-2">
@@ -174,6 +178,30 @@ const Cards = () => {
                   placeholder="e.g. Juice"
                 />
               </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Label_Ar</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newLabelar}
+                  onChange={(e) => setNewLabelar(e.target.value)}
+                  placeholder="مثلا. عصير"
+                />
+              </Form.Group>
+
+              {/* ✅ Category Dropdown */}
+              <Form.Group className="mb-3">
+                <Form.Label>Category</Form.Label>
+                <Form.Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                  <option value="">Select Category</option>
+                  <option value="Food">Food</option>
+                  <option value="Vehicle">Vehicle</option>
+                  <option value="Animal">Animal</option>
+                  <option value="Color">Color</option>
+                  <option value="Clothing">Clothing</option>
+                </Form.Select>
+              </Form.Group>
+
               <Form.Group>
                 <Form.Label>Upload Image</Form.Label>
                 <Form.Control
@@ -191,7 +219,7 @@ const Cards = () => {
             <Button
               variant="success"
               onClick={handleAddNewCard}
-              disabled={!newLabel || !newImageFile}
+              disabled={!newLabel || !newLabelar || !newImageFile || !newCategory}
             >
               Add Card
             </Button>

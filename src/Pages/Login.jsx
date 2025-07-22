@@ -67,7 +67,7 @@ const Login = () => {
                     checked={formData.remember}
                     onChange={handleChange}
                   />
-                  <Link to="/forgot" className="text-decoration-none small">
+                  <Link to="" className="text-decoration-none small">
                     Forgot password?
                   </Link>
                 </Form.Group>
@@ -79,7 +79,7 @@ const Login = () => {
                 <div className="text-center mt-3">
                   <span className="small">
                     Don’t have an account?{" "}
-                    <Link to="/signup" className="text-decoration-none">
+                    <Link to="" className="text-decoration-none">
                       Sign Up
                     </Link>
                   </span>

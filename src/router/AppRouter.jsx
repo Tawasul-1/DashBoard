@@ -23,11 +23,11 @@ function AppRouter() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/edit" element={<EditProfile />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/forgot" element={<ForgetPassword />} />
-          <Route path="/reset" element={<ResetPassword />} />
+          {/* <Route path="/signup" element={<Signup />} /> */}
+          {/* <Route path="/forgot" element={<ForgetPassword />} /> */}
+          {/* <Route path="/reset" element={<ResetPassword />} /> */}
           <Route path="/cards" element={<Cards />} />
-          <Route path="/sent" element={<Sentences />} />
+          {/* <Route path="/sent" element={<Sentences />} /> */}
           <Route path="/user" element={<User />} />
         </Routes>
       </AuthProvider>
