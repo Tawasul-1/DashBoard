@@ -2,14 +2,19 @@ import React, { useState } from "react";
 import { Button, Form, Container, Row, Col, Card } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
 import "../Style-pages/Login.css";
+import { authService } from "../api/services/AuthenticationService";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     remember: false,
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -19,10 +24,31 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Data:", formData);
-    navigate("/");
+    if (loading) return;
+    setError("");
+    setLoading(true);
+    try {
+      const response = await authService.login({
+        email: formData.email,
+        password: formData.password,
+      });
+      const data = response.data;
+      login(data.user, data.access, data.refresh);
+      // Wait for AuthContext to update before navigating
+      setTimeout(() => {
+        setLoading(false);
+        navigate("/");
+      }, 100);
+    } catch (err) {
+      setError(
+        err.response?.data?.detail ||
+          err.response?.data?.message ||
+          "Login failed. Please check your credentials."
+      );
+      setLoading(false);
+    }
   };
 
   return (
@@ -32,6 +58,7 @@ const Login = () => {
           <Col md={6} lg={5}>
             <Card className="shadow rounded-4 p-4">
               <h3 className="text-center mb-4">Login</h3>
+              {error && <div className="alert alert-danger">{error}</div>}
               <Form onSubmit={handleSubmit} autoComplete="off">
                 <Form.Group className="mb-3" controlId="formEmail">
                   <Form.Label>Email address</Form.Label>
@@ -72,8 +99,13 @@ const Login = () => {
                   </Link>
                 </Form.Group>
 
-                <Button variant="primary" type="submit" className="w-100 rounded-3">
-                  Login
+                <Button
+                  variant="primary"
+                  type="submit"
+                  className="w-100 rounded-3"
+                  disabled={loading}
+                >
+                  {loading ? "Logging in..." : "Login"}
                 </Button>
 
                 <div className="text-center mt-3">

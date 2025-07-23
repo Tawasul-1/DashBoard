@@ -43,11 +43,25 @@ class UserService {
       throw error;
     }
   }
+
+  static async getAllUsers(token) {
+    try {
+      const response = await apiClient.get("/users/all-users/", {
+        headers: { Authorization: `Bearer ${token}` },
+        timeout: 10000,
+      });
+      return response;
+    } catch (error) {
+      console.error("Get all users error:", error.response?.data || error.message);
+      throw error;
+    }
+  }
 }
 
 const userService = {
   getProfile: UserService.getProfile,
   updateProfile: UserService.updateProfile,
+  getAllUsers: UserService.getAllUsers,
 };
 
 export { userService };

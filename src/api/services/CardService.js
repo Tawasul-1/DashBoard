@@ -35,6 +35,18 @@ const CardService = {
       throw handleApiError(error);
     }
   },
+
+  async getAppStats(token) {
+    try {
+      const response = await apiClient.get("/cards/stats/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response;
+    } catch (error) {
+      console.error("Error fetching app stats:", error);
+      throw handleApiError(error);
+    }
+  },
 };
 
 export default CardService; 

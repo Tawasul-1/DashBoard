@@ -1,36 +1,64 @@
-import React from "react";
-import { Container, Table, Badge, Card } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Table, Badge, Card, Spinner, Alert } from "react-bootstrap";
 import { FaUser, FaEnvelope, FaRegIdCard, FaCrown, FaCalendarAlt } from "react-icons/fa";
 import Sidebar from "../Components/Sidebar";
+import { userService } from "../api/services/UserService";
+import { useAuth } from "../context/AuthContext";
+import { date } from "yup";
 
-const users = [
-  {
-    id: 1,
-    username: "YoumnaK",
-    email: "youmna@example.com",
-    cardsCount: 12,
-    isPremium: true,
-    premiumStartDate: "2025-07-01",
-  },
-  {
-    id: 2,
-    username: "AhmedSamir",
-    email: "ahmed@example.com",
-    cardsCount: 8,
-    isPremium: false,
-    premiumStartDate: null,
-  },
-  {
-    id: 3,
-    username: "SaraAli",
-    email: "sara@example.com",
-    cardsCount: 5,
-    isPremium: true,
-    premiumStartDate: "2025-06-15",
-  },
-];
+const User = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-const Users = () => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const token = localStorage.getItem("authToken");
+      try {
+        const response = await userService.getAllUsers(token);
+        console.log(response.data);
+        setUsers(response.data.results);
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+        setError(err.message || "Failed to fetch users");
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="dashboard-wrapper d-flex flex-column flex-lg-row">
+        <Sidebar />
+        <div className="main-content flex-grow-1 p-3">
+          <Container
+            fluid
+            className="d-flex justify-content-center align-items-center"
+            style={{ minHeight: "80vh" }}
+          >
+            <Spinner animation="border" variant="primary" />
+          </Container>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-wrapper d-flex flex-column flex-lg-row">
+        <Sidebar />
+        <div className="main-content flex-grow-1 p-3">
+          <Container fluid>
+            <Alert variant="danger">{error}</Alert>
+          </Container>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-wrapper d-flex flex-column flex-lg-row">
       <Sidebar />
@@ -43,11 +71,21 @@ const Users = () => {
               <thead className="table-light">
                 <tr>
                   <th>#</th>
-                  <th><FaUser className="me-1" /> Username</th>
-                  <th><FaEnvelope className="me-1" /> Email</th>
-                  <th><FaRegIdCard className="me-1" /> Cards</th>
-                  <th><FaCrown className="me-1" /> Account Type</th>
-                  <th><FaCalendarAlt className="me-1" /> Premium Start</th>
+                  <th>
+                    <FaUser className="me-1" /> Username
+                  </th>
+                  <th>
+                    <FaEnvelope className="me-1" /> Email
+                  </th>
+                  <th>
+                    <FaRegIdCard className="me-1" /> Cards
+                  </th>
+                  <th>
+                    <FaCrown className="me-1" /> Account Type
+                  </th>
+                  <th>
+                    <FaCalendarAlt className="me-1" /> Premium Expiry
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -57,18 +95,22 @@ const Users = () => {
                     <td className="fw-semibold">{user.username}</td>
                     <td>{user.email}</td>
                     <td>
-                      <Badge bg="light" pill>{user.cardsCount}</Badge>
+                      <Badge bg="light" pill>
+                        {user.cardsCount || 0}
+                      </Badge>
                     </td>
                     <td>
                       {user.isPremium ? (
-                        <Badge bg="warning" text="dark">Premium</Badge>
+                        <Badge bg="warning" text="dark">
+                          Premium
+                        </Badge>
                       ) : (
-                        <Badge bg="light" text="dark">Free</Badge>
+                        <Badge bg="light" text="dark">
+                          Free
+                        </Badge>
                       )}
                     </td>
-                    <td>
-                      {user.isPremium ? user.premiumStartDate : "—"}
-                    </td>
+                    <td>{user.is_premium ? new Date(user.premium_expiry).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -80,4 +122,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default User;
