@@ -1,39 +1,214 @@
-.custom-pecs-card {
-  background-color: #f9f9f9;
-  border-radius: 1rem;
-  transition: transform 0.2s ease, background-color 0.2s ease;
-  padding: 1rem;
+.add-new-btn {
+    border-radius: 25px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.custom-pecs-card:hover {
-  transform: scale(1.05);
-  background-color: #eaf4ff;
+.add-new-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* WOW Card Design */
+.wow-card-container {
+    perspective: 1000px;
+}
+
+.wow-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    height: 100%; /* Added to ensure consistent card heights */
+}
+
+.wow-card:hover {
+    transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Animated Gradient Border */
+.wow-card::before {
+    content: '';
+    position: absolute;
+    top: -2px; left: -2px;
+    right: -2px; bottom: -2px;
+    background-size: 400%;
+    z-index: -1;
+    border-radius: 15px;
+    animation: animate-gradient 8s linear infinite;
+    filter: blur(5px);
+}
+
+@keyframes animate-gradient {
+    0% { background-position: 0 0; }
+    50% { background-position: 300% 0; }
+    100% { background-position: 0 0; }
 }
 
 
-/* تحسين العرض على الشاشات المختلفة */
-@media (min-width: 768px) {
-  .main-content {
-    margin-left: 260px; /* نفس عرض السايدبار */
-  }
+.img-container {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
-@media (max-width: 767px) {
-  .main-content {
-    margin-top: 70px;
-  }
+.card-img-top {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-  .custom-pecs-card {
-    padding: 0.75rem;
-  }
+.card-title-en {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.card-title-ar {
+    font-size: 1.2rem;
+    font-family: 'Tahoma', sans-serif;
+    color: #c9c9c9;
+}
+
+.card-category {
+    font-size: 0.9rem;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 10px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.audio-buttons,
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: auto; /* Pushes buttons to the bottom */
+    padding-top: 1rem;
+}
+
+.board1{
+  border: 1px solid #173067 !important;
+}
+
+/* WOW Modal and Form Design */
+.wow-modal .modal-content {
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    color: #fff;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.wow-modal .modal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wow-modal .modal-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.wow-modal .form-label {
+    color: #ddd;
+}
+
+.wow-modal .form-control,
+.wow-modal .form-select {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #173067 !important;
+    padding: 10px;
+    color: #fff;
+    border-radius: 8px;
+}
+
+.wow-modal .form-control::placeholder {
+    color: #aaa;
+}
+
+.wow-modal .form-control:focus,
+.wow-modal .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: #00fffa;
+    box-shadow: 0 0 10px rgba(0, 255, 250, 0.5);
+    color: #fff;
+}
+
+.wow-modal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
 }
 
 #prmary {
   border: 1px solid #173067 !important;
   color: #173067 !important;
-  background-color: none !important;
+  background-color: transparent !important; /* Fixed background */
 }
 #prmary:hover {
   background-color: #173067 !important;
   color: white !important;
+}
+
+/* --- ADD ONLY THIS PART BELOW FOR RESPONSIVENESS --- */
+
+/* For large tablets and smaller devices */
+@media (max-width: 991.98px) {
+    /* Prevent the 3D hover effect on touch-based devices to avoid "sticky hover" issues. */
+    .wow-card:hover {
+        transform: none; /* Disables the 3D lift */
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Resets to default shadow */
+    }
+}
+
+
+/* For standard tablets and mobile phones */
+@media (max-width: 767.98px) {
+    /* Adjust main content layout if a sidebar exists */
+    .main-content {
+        margin-left: 0; /* Removes the large margin for the sidebar */
+        margin-top: 60px; /* Adds space for a possible top mobile navbar */
+        padding: 1rem !important; /* Reduces overall padding */
+    }
+
+    /* Stack header items for better mobile view */
+    .page-header {
+        flex-direction: column;
+        gap: 1.5rem; /* Adds space between the stacked title and button */
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .header-title {
+        font-size: 2rem; /* Slightly smaller title for mobile */
+    }
+
+    /* Make cards and their content slightly more compact */
+    .wow-card {
+        padding: 1rem;
+    }
+
+    .img-container {
+        width: 100px;
+        height: 100px;
+    }
+
+    .card-title-en {
+        font-size: 1.3rem;
+        margin-top: 0.5rem;
+    }
+
+    .card-title-ar {
+        font-size: 1.1rem;
+    }
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Modal, Form, Spinner, Alert } from "react-bootstrap";
-import "../Style-pages/Cards.css";
+import "../Style-pages/Cards.css"; // Make sure this path is correct
 import Sidebar from "../Components/Sidebar";
 import CardService from "../api/services/CardService";
 import CategoryService from "../api/services/CategoryService";
@@ -48,20 +48,20 @@ const Cards = () => {
     const fetchData = async () => {
       try {
         const token = getAuthToken();
-        
+
         // Fetch cards
         const cardsResponse = await CardService.getUserCards(token);
         setCards(cardsResponse.data.results || cardsResponse.data);
-        
+
         // Fetch categories
         const categoriesResponse = await CategoryService.getAllCategories(token);
         setCategories(categoriesResponse.data.results || categoriesResponse.data);
-        
+
         setLoading(false);
       } catch (err) {
         setError(err.message);
         setLoading(false);
-        
+
         if (err.response?.status === 401) {
           localStorage.removeItem("authToken");
           window.location.href = "/login";
@@ -107,11 +107,9 @@ const Cards = () => {
       if (editedAudioArFile) formData.append("audio_ar", editedAudioArFile);
 
       const response = await CardService.updateCard(editingCardId, formData, token);
-      
-      setCards(cards.map(card => 
-        card.id === editingCardId ? response.data : card
-      ));
-      
+
+      setCards(cards.map((card) => (card.id === editingCardId ? response.data : card)));
+
       setSuccessMessage("Card updated successfully!");
       setTimeout(() => setSuccessMessage(null), 3000);
       setShowEditModal(false);
@@ -127,9 +125,9 @@ const Cards = () => {
       try {
         const token = getAuthToken();
         await CardService.deleteCard(cardId, token);
-        
-        setCards(cards.filter(card => card.id !== cardId));
-        
+
+        setCards(cards.filter((card) => card.id !== cardId));
+
         setSuccessMessage("Card deleted successfully!");
         setTimeout(() => setSuccessMessage(null), 3000);
       } catch (err) {
@@ -152,12 +150,12 @@ const Cards = () => {
       if (newAudioArFile) formData.append("audio_ar", newAudioArFile);
 
       const response = await CardService.addNewCard(formData, token);
-      
+
       setCards([response.data, ...cards]);
-      
+
       setSuccessMessage("Card added successfully!");
       setTimeout(() => setSuccessMessage(null), 3000);
-      
+
       // Reset form
       setNewTitleEn("");
       setNewTitleAr("");
@@ -197,9 +195,8 @@ const Cards = () => {
   return (
     <div className="dashboard-wrapper d-flex flex-column flex-md-row">
       <Sidebar />
-      <main className="p-3 flex-grow-1 main-content">
-        <Container>
-          {/* Success/Error messages */}
+      <main className="p-4 flex-grow-1 main-content">
+        <Container fluid>
           {successMessage && (
             <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>
               {successMessage}
@@ -211,82 +208,73 @@ const Cards = () => {
             </Alert>
           )}
 
-          <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="mb-0">PECS Cards</h2>
-            <Button
-              style={{ width: "200px" }}
-              variant="primary text-white"
-              onClick={() => setShowAddModal(true)}
-            >
-              ➕ Add New Card
+          <div className="page-header text-center mb-4">
+            <h2 className="header-title">PECS Cards</h2>
+            <Button variant="primary" className="add-new-btn" onClick={() => setShowAddModal(true)}>
+              <i className="fas fa-plus-circle me-2"></i> Add New Card
             </Button>
           </div>
 
-          <Row className="g-3 justify-content-center">
+          <Row className="g-4">
             {cards.length === 0 ? (
-              <Col>
-                <Card className="text-center p-5">
-                  <Card.Body>
-                    <Card.Title>No cards found</Card.Title>
-                    <Card.Text>
-                      Get started by adding your first card
-                    </Card.Text>
-                  </Card.Body>
-                </Card>
+              <Col xs={12}>
+                <div className="text-center p-5 bg-light rounded-3">
+                  <h3 className="text-muted">No Cards Found</h3>
+                  <p>Start by adding your first PECS card.</p>
+                </div>
               </Col>
             ) : (
               cards.map((card) => (
-                <Col key={card.id} xs={10} sm={6} md={4} lg={3}>
-                  <Card className="text-center h-100 shadow-sm border-0 custom-pecs-card">
-                    <Card.Body>
-                      <div className="mb-2">
-                        <img
-                          src={card.image}
-                          alt={card.title_en}
-                          style={{ width: "80px", height: "80px", objectFit: "cover" }}
-                        />
-                      </div>
-                      <Card.Text className="fw-semibold">{card.title_en}</Card.Text>
-                      <Card.Text className="fw-semibold">{card.title_ar}</Card.Text>
-                      <Card.Text className="text-muted small">
-                        Category: {card.category?.name_en || 'Uncategorized'}
-                      </Card.Text>
-                      
-                      <div className="d-flex justify-content-center gap-2 mb-2">
-                        {card.audio_en && (
-                          <Button 
-                            variant="outline-primary" 
+                <Col key={card.id} xs={12} sm={6} md={4} lg={3}>
+                  <div className="wow-card-container">
+                    <Card className="wow-card">
+                      <Card.Body>
+                        <div className="img-container mb-3">
+                          <img src={card.image} alt={card.title_en} className="card-img-top" />
+                        </div>
+                        <Card.Title className="card-title-en">{card.title_en}</Card.Title>
+                        <Card.Title className="card-title-ar">{card.title_ar}</Card.Title>
+                        <Card.Text className="card-category">
+                          {card.category?.name_en || "Uncategorized"}
+                        </Card.Text>
+
+                        <div className="audio-buttons my-3">
+                          {card.audio_en && (
+                            <Button
+                              variant="outline-light board1"
+                              size="sm"
+                              onClick={() => playAudio(card.audio_en)}
+                            >
+                              EN Audio
+                            </Button>
+                          )}
+                          {card.audio_ar && (
+                            <Button
+                              variant="outline-light board1"
+                              size="sm"
+                              onClick={() => playAudio(card.audio_ar)}
+                            >
+                              AR Audio
+                            </Button>
+                          )}
+                        </div>
+
+                        <div className="action-buttons">
+                          <Button
+                            variant="primary"
+                            className="add-new-btn"
                             size="sm"
-                            onClick={() => playAudio(card.audio_en)}
+                            onClick={() => handleEdit(card)}
                           >
-                            EN Audio
+                            Edit
                           </Button>
-                        )}
-                        {card.audio_ar && (
-                          <Button 
-                            variant="outline-secondary" 
-                            size="sm"
-                            onClick={() => playAudio(card.audio_ar)}
-                          >
-                            AR Audio
+                          <Button variant="danger" size="sm" onClick={() => handleDelete(card.id)}>
+                            Delete
                           </Button>
-                        )}
-                      </div>
-                      
-                      <div className="d-flex justify-content-center flex-wrap gap-2 mt-3">
-                        <Button variant="primary" size="sm" onClick={() => handleEdit(card)}>
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => handleDelete(card.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </Card.Body>
-                  </Card>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </div>
                 </Col>
               ))
             )}
@@ -294,9 +282,15 @@ const Cards = () => {
         </Container>
 
         {/* Edit Modal */}
-        <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered size="lg">
+        <Modal
+          show={showEditModal}
+          onHide={() => setShowEditModal(false)}
+          centered
+          size="lg"
+          className="wow-modal"
+        >
           <Modal.Header closeButton>
-            <Modal.Title>Edit Card</Modal.Title>
+            <Modal.Title className="w-100 text-center">Edit Card</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
@@ -322,22 +316,20 @@ const Cards = () => {
                   </Form.Group>
                 </Col>
               </Row>
-
               <Form.Group className="mb-3">
                 <Form.Label>Category</Form.Label>
-                <Form.Select 
-                  value={editedCategory} 
+                <Form.Select
+                  value={editedCategory}
                   onChange={(e) => setEditedCategory(e.target.value)}
                 >
                   <option value="">Select Category</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name_en}
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name_en}
                     </option>
                   ))}
                 </Form.Select>
               </Form.Group>
-
               <Row>
                 <Col md={4}>
                   <Form.Group className="mb-3">
@@ -372,12 +364,12 @@ const Cards = () => {
               </Row>
             </Form>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+          <Modal.Footer className="justify-content-center">
+            <Button variant="secondary text-white" onClick={() => setShowEditModal(false)}>
               Cancel
             </Button>
-            <Button 
-              variant="primary" 
+            <Button
+              variant="primary"
               onClick={handleSaveEdit}
               disabled={!editedTitleEn || !editedTitleAr || !editedCategory}
             >
@@ -387,9 +379,15 @@ const Cards = () => {
         </Modal>
 
         {/* Add Modal */}
-        <Modal show={showAddModal} onHide={() => setShowAddModal(false)} centered size="lg">
+        <Modal
+          show={showAddModal}
+          onHide={() => setShowAddModal(false)}
+          centered
+          size="lg"
+          className="wow-modal"
+        >
           <Modal.Header closeButton>
-            <Modal.Title>Add New Card</Modal.Title>
+            <Modal.Title className="w-100 text-center">Add New Card</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
@@ -417,22 +415,17 @@ const Cards = () => {
                   </Form.Group>
                 </Col>
               </Row>
-
               <Form.Group className="mb-3">
                 <Form.Label>Category</Form.Label>
-                <Form.Select 
-                  value={newCategory} 
-                  onChange={(e) => setNewCategory(e.target.value)}
-                >
+                <Form.Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
                   <option value="">Select Category</option>
-                  {categories.map(category => (
-                    <option key={category.id} value={category.id}>
-                      {category.name_en}
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name_en}
                     </option>
                   ))}
                 </Form.Select>
               </Form.Group>
-
               <Row>
                 <Col md={4}>
                   <Form.Group className="mb-3">
@@ -468,8 +461,8 @@ const Cards = () => {
               </Row>
             </Form>
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowAddModal(false)}>
+          <Modal.Footer className="justify-content-center">
+            <Button variant="secondary text-white" onClick={() => setShowAddModal(false)}>
               Cancel
             </Button>
             <Button
