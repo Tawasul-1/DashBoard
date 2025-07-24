@@ -1,26 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { BsCollectionPlay, BsGrid } from "react-icons/bs";
 import { CgProfile } from "react-icons/cg";
-import { BiMenu } from "react-icons/bi";
-import { BiLogOut } from "react-icons/bi";
+import { BiMenu, BiLogOut } from "react-icons/bi";
 import "./Sidebar.css";
+import { useAuth } from "../context/AuthContext";
+import apiClient from "../api/config/apiClient";
 
 const Sidebar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 750);
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuth(); // Get logout function from auth context
 
   const handleResize = () => {
     const mobile = window.innerWidth < 750;
     setIsMobile(mobile);
     if (!mobile) {
-      setIsOpen(false); // ما يحتاجش يظهر overlay في اللابتوب
+      setIsOpen(false);
     }
   };
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogout = async (e) => {
+    e.preventDefault();
+    try {
+      // Option 1: If you have a logout endpoint
+      await apiClient.post("/auth/logout/");
+      
+      // Option 2: If you just need to clear tokens locally
+      logout(); // From your auth context
+      
+      // Clear any stored tokens
+      localStorage.removeItem("authToken");
+      sessionStorage.removeItem("authToken");
+      
+      // Redirect to login
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Fallback: still clear local data and redirect
+      logout();
+      navigate("/login");
+    }
   };
 
   useEffect(() => {
@@ -48,7 +74,7 @@ const Sidebar = () => {
           isMobile ? (isOpen ? "mobile-show" : "mobile-hide") : "desktop-show"
         }`}
       >
-        <h2 className="fw-bold mb-5 ">Tawasul</h2>
+        <h2 className="fw-bold mb-5">Tawasul</h2>
 
         <NavLink
           to="/"
@@ -80,6 +106,7 @@ const Sidebar = () => {
         >
           <BsGrid className="me-2" /> Categories
         </NavLink>
+
         <NavLink
           to="/profile"
           className={({ isActive }) =>
@@ -89,11 +116,15 @@ const Sidebar = () => {
         >
           <CgProfile className="me-2" /> Profile
         </NavLink>
+
         <div className="mt-auto">
-          <NavLink to="/logout" className="nav-link d-flex align-items-center mb-3">
+          <button 
+            onClick={handleLogout}
+            className="nav-link d-flex align-items-center mb-3 w-100 bg-transparent border-0"
+          >
             <BiLogOut className="me-2 fs-5" />
             Logout
-          </NavLink>
+          </button>
         </div>
       </div>
 

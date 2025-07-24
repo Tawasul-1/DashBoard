@@ -1,38 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Card, Button, Modal, Form, Spinner, Alert } from "react-bootstrap";
-import "../Style-pages/Cards.css"; // Make sure this path is correct
+import "../Style-pages/Cards.css";
 import Sidebar from "../Components/Sidebar";
 import CardService from "../api/services/CardService";
 import CategoryService from "../api/services/CategoryService";
 
 const Cards = () => {
-  const [cards, setCards] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
+  // State management
+  const [state, setState] = useState({
+    cards: [],
+    categories: [],
+    loading: true,
+    error: null,
+    successMessage: null,
+    showEditModal: false,
+    showAddModal: false,
+    editingCardId: null,
+    editedImageFile: null,
+    newTitleEn: "",
+    newTitleAr: "",
+    newCategory: "",
+    newImageFile: null,
+  });
 
-  // Edit modal state
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingCardId, setEditingCardId] = useState(null);
-  const [editedTitleEn, setEditedTitleEn] = useState("");
-  const [editedTitleAr, setEditedTitleAr] = useState("");
-  const [editedCategory, setEditedCategory] = useState(null);
-  const [editedImageFile, setEditedImageFile] = useState(null);
-  const [editedAudioEnFile, setEditedAudioEnFile] = useState(null);
-  const [editedAudioArFile, setEditedAudioArFile] = useState(null);
-
-  // Add modal state
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newTitleEn, setNewTitleEn] = useState("");
-  const [newTitleAr, setNewTitleAr] = useState("");
-  const [newCategory, setNewCategory] = useState("");
-  const [newImageFile, setNewImageFile] = useState(null);
-  const [newAudioEnFile, setNewAudioEnFile] = useState(null);
-  const [newAudioArFile, setNewAudioArFile] = useState(null);
-
-  // Audio state
-  const [playingAudio, setPlayingAudio] = useState(null);
+  // Helper function to update state
+  const updateState = (newState) => {
+    setState((prev) => ({ ...prev, ...newState }));
+  };
 
   // Get authentication token
   const getAuthToken = () => {
@@ -49,18 +43,23 @@ const Cards = () => {
       try {
         const token = getAuthToken();
 
-        // Fetch cards
-        const cardsResponse = await CardService.getUserCards(token);
-        setCards(cardsResponse.data.results || cardsResponse.data);
+        // Fetch cards and categories in parallel
+        const [cardsResponse, categoriesResponse] = await Promise.all([
+          CardService.getUserCards(token),
+          CategoryService.getAllCategories(token),
+        ]);
 
-        // Fetch categories
-        const categoriesResponse = await CategoryService.getAllCategories(token);
-        setCategories(categoriesResponse.data.results || categoriesResponse.data);
-
-        setLoading(false);
+        updateState({
+          cards: cardsResponse.data.results || cardsResponse.data,
+          categories: categoriesResponse.data.results || categoriesResponse.data,
+          loading: false,
+          error: null,
+        });
       } catch (err) {
-        setError(err.message);
-        setLoading(false);
+        updateState({
+          error: err.message,
+          loading: false,
+        });
 
         if (err.response?.status === 401) {
           localStorage.removeItem("authToken");
@@ -72,26 +71,13 @@ const Cards = () => {
     fetchData();
   }, []);
 
-  // Play audio
-  const playAudio = (audioUrl) => {
-    if (playingAudio) {
-      playingAudio.pause();
-    }
-    const audio = new Audio(audioUrl);
-    audio.play();
-    setPlayingAudio(audio);
-  };
-
   // Handle edit card
   const handleEdit = (card) => {
-    setEditingCardId(card.id);
-    setEditedTitleEn(card.title_en);
-    setEditedTitleAr(card.title_ar);
-    setEditedCategory(card.category.id);
-    setEditedImageFile(null);
-    setEditedAudioEnFile(null);
-    setEditedAudioArFile(null);
-    setShowEditModal(true);
+    updateState({
+      editingCardId: card.id,
+      editedImageFile: null,
+      showEditModal: true,
+    });
   };
 
   // Save edited card
@@ -99,23 +85,26 @@ const Cards = () => {
     try {
       const token = getAuthToken();
       const formData = new FormData();
-      formData.append("title_en", editedTitleEn);
-      formData.append("title_ar", editedTitleAr);
-      formData.append("category", editedCategory);
-      if (editedImageFile) formData.append("image", editedImageFile);
-      if (editedAudioEnFile) formData.append("audio_en", editedAudioEnFile);
-      if (editedAudioArFile) formData.append("audio_ar", editedAudioArFile);
 
-      const response = await CardService.updateCard(editingCardId, formData, token);
+      if (state.editedImageFile) {
+        formData.append("image", state.editedImageFile);
+      }
 
-      setCards(cards.map((card) => (card.id === editingCardId ? response.data : card)));
+      const response = await CardService.updateCard(state.editingCardId, formData, token);
 
-      setSuccessMessage("Card updated successfully!");
-      setTimeout(() => setSuccessMessage(null), 3000);
-      setShowEditModal(false);
+      updateState({
+        cards: state.cards.map((card) => (card.id === state.editingCardId ? response.data : card)),
+        successMessage: "Card image updated successfully!",
+        showEditModal: false,
+        editedImageFile: null,
+      });
+
+      setTimeout(() => updateState({ successMessage: null }), 3000);
     } catch (err) {
-      setError(err.message);
-      setTimeout(() => setError(null), 3000);
+      updateState({
+        error: err.response?.data?.message || err.message,
+      });
+      setTimeout(() => updateState({ error: null }), 3000);
     }
   };
 
@@ -126,13 +115,17 @@ const Cards = () => {
         const token = getAuthToken();
         await CardService.deleteCard(cardId, token);
 
-        setCards(cards.filter((card) => card.id !== cardId));
+        updateState({
+          cards: state.cards.filter((card) => card.id !== cardId),
+          successMessage: "Card deleted successfully!",
+        });
 
-        setSuccessMessage("Card deleted successfully!");
-        setTimeout(() => setSuccessMessage(null), 3000);
+        setTimeout(() => updateState({ successMessage: null }), 3000);
       } catch (err) {
-        setError(err.message);
-        setTimeout(() => setError(null), 3000);
+        updateState({
+          error: err.response?.data?.message || err.message,
+        });
+        setTimeout(() => updateState({ error: null }), 3000);
       }
     }
   };
@@ -140,37 +133,45 @@ const Cards = () => {
   // Add new card
   const handleAddNewCard = async () => {
     try {
+      // Validate form
+      if (!state.newTitleEn || !state.newTitleAr || !state.newCategory || !state.newImageFile) {
+        updateState({
+          error: "Please fill all required fields",
+        });
+        setTimeout(() => updateState({ error: null }), 3000);
+        return;
+      }
+
       const token = getAuthToken();
       const formData = new FormData();
-      formData.append("title_en", newTitleEn);
-      formData.append("title_ar", newTitleAr);
-      formData.append("category", newCategory);
-      formData.append("image", newImageFile);
-      if (newAudioEnFile) formData.append("audio_en", newAudioEnFile);
-      if (newAudioArFile) formData.append("audio_ar", newAudioArFile);
+
+      formData.append("title_en", state.newTitleEn);
+      formData.append("title_ar", state.newTitleAr);
+      formData.append("category_id", state.newCategory);
+      formData.append("image", state.newImageFile);
 
       const response = await CardService.addNewCard(formData, token);
 
-      setCards([response.data, ...cards]);
+      updateState({
+        cards: [response.data, ...state.cards],
+        successMessage: "Card added successfully!",
+        showAddModal: false,
+        newTitleEn: "",
+        newTitleAr: "",
+        newCategory: "",
+        newImageFile: null,
+      });
 
-      setSuccessMessage("Card added successfully!");
-      setTimeout(() => setSuccessMessage(null), 3000);
-
-      // Reset form
-      setNewTitleEn("");
-      setNewTitleAr("");
-      setNewCategory("");
-      setNewImageFile(null);
-      setNewAudioEnFile(null);
-      setNewAudioArFile(null);
-      setShowAddModal(false);
+      setTimeout(() => updateState({ successMessage: null }), 3000);
     } catch (err) {
-      setError(err.message);
-      setTimeout(() => setError(null), 3000);
+      updateState({
+        error: err.response?.data?.message || err.message,
+      });
+      setTimeout(() => updateState({ error: null }), 3000);
     }
   };
 
-  if (loading) {
+  if (state.loading) {
     return (
       <div className="dashboard-wrapper d-flex">
         <Sidebar />
@@ -181,12 +182,14 @@ const Cards = () => {
     );
   }
 
-  if (error) {
+  if (state.error) {
     return (
       <div className="dashboard-wrapper d-flex">
         <Sidebar />
         <div className="p-4 flex-grow-1 main-content">
-          <Alert variant="danger">{error}</Alert>
+          <Alert variant="danger" onClose={() => updateState({ error: null })} dismissible>
+            {state.error}
+          </Alert>
         </div>
       </div>
     );
@@ -197,84 +200,78 @@ const Cards = () => {
       <Sidebar />
       <main className="p-4 flex-grow-1 main-content">
         <Container fluid>
-          {successMessage && (
-            <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>
-              {successMessage}
-            </Alert>
-          )}
-          {error && (
-            <Alert variant="danger" onClose={() => setError(null)} dismissible>
-              {error}
+          {state.successMessage && (
+            <Alert
+              variant="success"
+              onClose={() => updateState({ successMessage: null })}
+              dismissible
+              className="rounded-lg"
+            >
+              {state.successMessage}
             </Alert>
           )}
 
-          <div className="page-header text-center mb-4">
-            <h2 className="header-title">PECS Cards</h2>
-            <Button variant="primary" className="add-new-btn" onClick={() => setShowAddModal(true)}>
+          <div className="page-header text-center mb-4 bg-white p-4 rounded-lg shadow-sm">
+            <h2 className="header-title mb-3">PECS Cards</h2>
+            <Button
+              variant="primary"
+              className="add-new-btn rounded-pill px-4"
+              onClick={() => updateState({ showAddModal: true })}
+            >
               <i className="fas fa-plus-circle me-2"></i> Add New Card
             </Button>
           </div>
 
           <Row className="g-4">
-            {cards.length === 0 ? (
+            {state.cards.length === 0 ? (
               <Col xs={12}>
-                <div className="text-center p-5 bg-light rounded-3">
-                  <h3 className="text-muted">No Cards Found</h3>
-                  <p>Start by adding your first PECS card.</p>
+                <div className="text-center p-5 bg-white rounded-lg shadow-sm">
+                  <h3 className="text-muted mb-3">No Cards Found</h3>
+                  <p className="text-muted">Start by adding your first PECS card.</p>
                 </div>
               </Col>
             ) : (
-              cards.map((card) => (
+              state.cards.map((card) => (
                 <Col key={card.id} xs={12} sm={6} md={4} lg={3}>
-                  <div className="wow-card-container">
-                    <Card className="wow-card">
-                      <Card.Body>
-                        <div className="img-container mb-3">
-                          <img src={card.image} alt={card.title_en} className="card-img-top" />
-                        </div>
-                        <Card.Title className="card-title-en">{card.title_en}</Card.Title>
-                        <Card.Title className="card-title-ar">{card.title_ar}</Card.Title>
-                        <Card.Text className="card-category">
-                          {card.category?.name_en || "Uncategorized"}
-                        </Card.Text>
+                  <Card className="h-100 border-0 shadow-sm overflow-hidden rounded-3">
+                    <Card.Body className="d-flex flex-column">
+                      <div className="img-container mb-3 bg-light" style={{ height: "150px" }}>
+                        <img
+                          src={card.image}
+                          alt={card.title_en}
+                          className="w-100 h-100 object-fit-cover"
+                        />
+                      </div>
+                      <Card.Title className="card-title-en text-center mb-2">
+                        {card.title_en}
+                      </Card.Title>
+                      <Card.Title className="card-title-ar text-center mb-3">
+                        {card.title_ar}
+                      </Card.Title>
+                      <Card.Text className="card-category text-muted text-center mb-3">
+                        {card.category?.name_en || "Uncategorized"}
+                      </Card.Text>
 
-                        <div className="audio-buttons my-3">
-                          {card.audio_en && (
-                            <Button
-                              variant="outline-light board1"
-                              size="sm"
-                              onClick={() => playAudio(card.audio_en)}
-                            >
-                              EN Audio
-                            </Button>
-                          )}
-                          {card.audio_ar && (
-                            <Button
-                              variant="outline-light board1"
-                              size="sm"
-                              onClick={() => playAudio(card.audio_ar)}
-                            >
-                              AR Audio
-                            </Button>
-                          )}
-                        </div>
-
-                        <div className="action-buttons">
-                          <Button
-                            variant="primary"
-                            className="add-new-btn"
-                            size="sm"
-                            onClick={() => handleEdit(card)}
-                          >
-                            Edit
-                          </Button>
-                          <Button variant="danger" size="sm" onClick={() => handleDelete(card.id)}>
-                            Delete
-                          </Button>
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </div>
+                      <div className="action-buttons d-flex justify-content-center gap-2 mt-auto">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="rounded-pill"
+                          onClick={() => handleEdit(card)}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          className="rounded-pill"
+                          onClick={() => handleDelete(card.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </Card.Body>
+                  </Card>
                 </Col>
               ))
             )}
@@ -283,192 +280,156 @@ const Cards = () => {
 
         {/* Edit Modal */}
         <Modal
-          show={showEditModal}
-          onHide={() => setShowEditModal(false)}
+          show={state.showEditModal}
+          onHide={() => updateState({ showEditModal: false })}
           centered
           size="lg"
           className="wow-modal"
         >
-          <Modal.Header closeButton>
-            <Modal.Title className="w-100 text-center">Edit Card</Modal.Title>
+          <Modal.Header closeButton className="border-0">
+            <Modal.Title className="w-100 text-center">Update Card Image</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="p-4">
+            <div className="text-center mb-4">
+              <h5>Current Image</h5>
+              <div className="bg-light rounded-lg p-2 mb-3" style={{ maxHeight: "200px" }}>
+                <img
+                  src={state.cards.find((c) => c.id === state.editingCardId)?.image}
+                  alt="Current card"
+                  className="img-fluid rounded"
+                  style={{ maxHeight: "180px" }}
+                />
+              </div>
+            </div>
+
             <Form>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Title (English)</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editedTitleEn}
-                      onChange={(e) => setEditedTitleEn(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Title (Arabic)</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editedTitleAr}
-                      onChange={(e) => setEditedTitleAr(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
               <Form.Group className="mb-3">
-                <Form.Label>Category</Form.Label>
-                <Form.Select
-                  value={editedCategory}
-                  onChange={(e) => setEditedCategory(e.target.value)}
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name_en}
-                    </option>
-                  ))}
-                </Form.Select>
+                <Form.Label>Select New Image</Form.Label>
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => updateState({ editedImageFile: e.target.files[0] })}
+                  required
+                  className="rounded"
+                />
               </Form.Group>
-              <Row>
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Update Image</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setEditedImageFile(e.target.files[0])}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Update English Audio</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => setEditedAudioEnFile(e.target.files[0])}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Update Arabic Audio</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => setEditedAudioArFile(e.target.files[0])}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+
+              {state.editedImageFile && (
+                <div className="mt-3 bg-light rounded-lg p-2">
+                  <h6 className="text-center mb-2">New Image Preview:</h6>
+                  <img
+                    src={URL.createObjectURL(state.editedImageFile)}
+                    alt="Preview"
+                    className="img-fluid rounded"
+                    style={{ maxHeight: "150px" }}
+                  />
+                </div>
+              )}
             </Form>
           </Modal.Body>
-          <Modal.Footer className="justify-content-center">
-            <Button variant="secondary text-white" onClick={() => setShowEditModal(false)}>
+          <Modal.Footer className="justify-content-center border-0">
+            <Button
+              variant="outline-secondary"
+              onClick={() => updateState({ showEditModal: false })}
+              className="rounded-pill px-4"
+            >
               Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleSaveEdit}
-              disabled={!editedTitleEn || !editedTitleAr || !editedCategory}
+              disabled={!state.editedImageFile}
+              className="rounded-pill px-4"
             >
-              Save Changes
+              Update Image
             </Button>
           </Modal.Footer>
         </Modal>
 
         {/* Add Modal */}
         <Modal
-          show={showAddModal}
-          onHide={() => setShowAddModal(false)}
+          show={state.showAddModal}
+          onHide={() => updateState({ showAddModal: false })}
           centered
           size="lg"
           className="wow-modal"
         >
-          <Modal.Header closeButton>
+          <Modal.Header closeButton className="border-0">
             <Modal.Title className="w-100 text-center">Add New Card</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="p-4">
             <Form>
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Title (English)</Form.Label>
+                    <Form.Label>Title (English) *</Form.Label>
                     <Form.Control
                       type="text"
-                      value={newTitleEn}
-                      onChange={(e) => setNewTitleEn(e.target.value)}
+                      value={state.newTitleEn}
+                      onChange={(e) => updateState({ newTitleEn: e.target.value })}
                       placeholder="e.g. Apple"
+                      required
+                      className="rounded"
                     />
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Title (Arabic)</Form.Label>
+                    <Form.Label>Title (Arabic) *</Form.Label>
                     <Form.Control
                       type="text"
-                      value={newTitleAr}
-                      onChange={(e) => setNewTitleAr(e.target.value)}
+                      value={state.newTitleAr}
+                      onChange={(e) => updateState({ newTitleAr: e.target.value })}
                       placeholder="مثلا. تفاح"
+                      required
+                      className="rounded"
                     />
                   </Form.Group>
                 </Col>
               </Row>
               <Form.Group className="mb-3">
-                <Form.Label>Category</Form.Label>
-                <Form.Select value={newCategory} onChange={(e) => setNewCategory(e.target.value)}>
+                <Form.Label>Category *</Form.Label>
+                <Form.Select
+                  value={state.newCategory}
+                  onChange={(e) => updateState({ newCategory: e.target.value })}
+                  required
+                  className="rounded"
+                >
                   <option value="">Select Category</option>
-                  {categories.map((cat) => (
+                  {state.categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
                       {cat.name_en}
                     </option>
                   ))}
                 </Form.Select>
               </Form.Group>
-              <Row>
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Card Image (Required)</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setNewImageFile(e.target.files[0])}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>English Audio (Optional)</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => setNewAudioEnFile(e.target.files[0])}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={4}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Arabic Audio (Optional)</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="audio/*"
-                      onChange={(e) => setNewAudioArFile(e.target.files[0])}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
+              <Form.Group className="mb-3">
+                <Form.Label>Card Image *</Form.Label>
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => updateState({ newImageFile: e.target.files[0] })}
+                  required
+                  className="rounded"
+                />
+              </Form.Group>
             </Form>
           </Modal.Body>
-          <Modal.Footer className="justify-content-center">
-            <Button variant="secondary text-white" onClick={() => setShowAddModal(false)}>
+          <Modal.Footer className="justify-content-center border-0">
+            <Button
+              variant="outline-secondary"
+              onClick={() => updateState({ showAddModal: false })}
+              className="rounded-pill px-4"
+            >
               Cancel
             </Button>
             <Button
-              variant="success"
+              variant="primary"
               onClick={handleAddNewCard}
-              disabled={!newTitleEn || !newTitleAr || !newImageFile || !newCategory}
+              disabled={
+                !state.newTitleEn || !state.newTitleAr || !state.newImageFile || !state.newCategory
+              }
+              className="rounded-pill px-4"
             >
               Add Card
             </Button>

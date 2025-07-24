@@ -2,11 +2,12 @@ import apiClient from "../config/apiClient";
 import { handleApiError } from "../utils/handleApiErrors";
 
 const CardService = {
-  async addNewCard(formData) {
+  async addNewCard(formData, token) {
     try {
       const response = await apiClient.post("/cards/cards/", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
         },
       });
       return response;
@@ -16,9 +17,13 @@ const CardService = {
     }
   },
 
-  async deleteCard(cardId) {
+  async deleteCard(cardId, token) {
     try {
-      const response = await apiClient.delete(`/cards/cards/${cardId}/`);
+      const response = await apiClient.delete(`/cards/cards/${cardId}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response;
     } catch (error) {
       console.error("Error deleting card:", error);
@@ -26,9 +31,13 @@ const CardService = {
     }
   },
 
-  async getUserCards() {
+  async getUserCards(token) {
     try {
-      const response = await apiClient.get("/cards/cards/");
+      const response = await apiClient.get("/cards/cards/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response;
     } catch (error) {
       console.error("Error fetching user cards:", error);
@@ -36,10 +45,27 @@ const CardService = {
     }
   },
 
+  async updateCard(cardId, formData, token) {
+    try {
+      const response = await apiClient.patch(`/cards/cards/${cardId}/`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.error("Error updating card:", error);
+      throw handleApiError(error);
+    }
+  },
+
   async getAppStats(token) {
     try {
       const response = await apiClient.get("/cards/stats/", {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       return response;
     } catch (error) {
@@ -49,4 +75,4 @@ const CardService = {
   },
 };
 
-export default CardService; 
+export default CardService;
