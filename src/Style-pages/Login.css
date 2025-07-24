@@ -1,3 +1,178 @@
-.login-page {
-  background-color: #f1f3f5;
+/* Main container for the split-screen layout */
+.modern-login-container {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #1a1a2e;
+}
+
+/* Left side for branding */
+.login-branding {
+  flex: 1;
+  background-color: #1a1a2e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  padding: 2rem;
+  background-image: url('https://www.transparenttextures.com/patterns/cubes.png'), linear-gradient(135deg, #1a1a2e 0%, #2b2e4a 100%);
+  background-blend-mode: overlay;
+  position: relative;
+}
+
+.branding-content {
+  z-index: 1;
+}
+
+.brand-name {
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #fff !important;
+}
+
+.brand-tagline {
+  font-size: clamp(1rem, 4vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* Right side for the login form */
+.login-form-wrapper {
+  flex: 1;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.form-content {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.form-title {
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
+.form-subtitle {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+.modern-input-group {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  top: 50%;
+  left: 0.5rem; /* Adjusted for new padding */
+  transform: translateY(-50%);
+  color: #adb5bd;
+  font-size: 1rem;
+}
+
+.modern-input {
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid #dee2e6;
+  border-radius: 0;
+  /* --- THIS IS THE UPDATED LINE --- */
+  padding: 0.8rem 2.5rem 0.8rem 2.5rem; /* Increased padding for a more spacious feel */
+  font-size: 1rem;
+  width: 100%;
+  transition: border-color 0.3s ease;
+}
+
+.modern-input:focus {
+  background-color: transparent;
+  box-shadow: none;
+  border-color: #0d6efd;
+}
+
+.modern-input::placeholder {
+  color: #adb5bd;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem; /* Adjusted for new padding */
+  transform: translateY(-50%);
+  color: #6c757d;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: color 0.2s;
+}
+
+.password-toggle-icon:hover {
+  color: #212529;
+}
+
+.modern-link {
+  color: #0d6efd;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.modern-link:hover {
+  text-decoration: underline;
+}
+
+.modern-signup-prompt {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.modern-login-btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 8px;
+  background-color: #0d6efd;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.modern-login-btn:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
+}
+.modern-login-btn:disabled {
+    background-color: #6c757d;
+}
+
+@media (max-width: 992px) {
+  .modern-login-container {
+    flex-direction: column;
+  }
+  
+  .login-branding {
+    flex: 0;
+    min-height: 250px;
+  }
+
+  .login-form-wrapper {
+    flex: 1;
+    padding: 2rem 1.5rem;
+  }
+
+  .form-content {
+    align-items: center;
+    text-align: center;
+  }
+  .form-title, .form-subtitle {
+    width: 100%;
+    text-align: left;
+  }
 }

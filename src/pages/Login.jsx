@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { Button, Form, Container, Row, Col, Card } from "react-bootstrap";
+import { Button, Form, Spinner, Alert } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
-import "../Style-pages/Login.css";
+import "../Style-pages/Login.css"; // Make sure this path is correct
 import { authService } from "../api/services/AuthenticationService";
 import { useAuth } from "../context/AuthContext";
+// --- Import the necessary icons ---
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,16 +13,17 @@ const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    remember: false,
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // --- State to toggle password visibility ---
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: value,
     }));
   };
 
@@ -36,7 +39,6 @@ const Login = () => {
       });
       const data = response.data;
       login(data.user, data.access, data.refresh);
-      // Wait for AuthContext to update before navigating
       setTimeout(() => {
         setLoading(false);
         navigate("/");
@@ -52,75 +54,69 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page d-flex align-items-center justify-content-center vh-100 bg-light">
-      <Container>
-        <Row className="justify-content-center">
-          <Col md={6} lg={5}>
-            <Card className="shadow rounded-4 p-4">
-              <h3 className="text-center mb-4">Login</h3>
-              {error && <div className="alert alert-danger">{error}</div>}
-              <Form onSubmit={handleSubmit} autoComplete="off">
-                <Form.Group className="mb-3" controlId="formEmail">
-                  <Form.Label>Email address</Form.Label>
-                  <Form.Control
-                    className="p-2"
-                    type="email"
-                    name="email"
-                    placeholder="Enter email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
+    <div className="modern-login-container">
+      {/* Left Side - Branding */}
+      <div className="login-branding">
+        <div className="branding-content">
+          <h1 className="brand-name">Tawasul</h1>
+          <p className="brand-tagline">Seamless Communication, Connected.</p>
+        </div>
+      </div>
 
-                <Form.Group className="mb-3" controlId="formPassword">
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control
-                    className="p-2"
-                    type="password"
-                    name="password"
-                    placeholder="Password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </Form.Group>
+      {/* Right Side - Form */}
+      <div className="login-form-wrapper">
+        <div className="form-content w-100 text-center">
+          <h2 className="form-title w-100 text-center">Sign In</h2>
+          <p className="form-subtitle w-100 text-center">Enter your details to access your account.</p>
 
-                <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
-                  <Form.Check
-                    type="checkbox"
-                    name="remember"
-                    label="Remember me"
-                    checked={formData.remember}
-                    onChange={handleChange}
-                  />
-                  <Link to="" className="text-decoration-none small">
-                    Forgot password?
-                  </Link>
-                </Form.Group>
+          {error && <Alert variant="danger" className="py-2 small w-100">{error}</Alert>}
+          
+          <Form onSubmit={handleSubmit} noValidate className="w-100">
+            {/* --- Email Input with Icon --- */}
+            <Form.Group className="mb-4 modern-input-group" controlId="formEmail">
+              <FaEnvelope className="input-icon" />
+              <Form.Control
+                type="email"
+                name="email"
+                placeholder="Email Address"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                className="modern-input px-5 p-2"
+              />
+            </Form.Group>
 
-                <Button
-                  variant="primary"
-                  type="submit"
-                  className="w-100 rounded-3"
-                  disabled={loading}
-                >
-                  {loading ? "Logging in..." : "Login"}
-                </Button>
-
-                <div className="text-center mt-3">
-                  <span className="small">
-                    Don’t have an account?{" "}
-                    <Link to="" className="text-decoration-none">
-                      Sign Up
-                    </Link>
-                  </span>
-                </div>
-              </Form>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
+            {/* --- Password Input with Lock and Eye Icons --- */}
+            <Form.Group className="mb-4 modern-input-group" controlId="formPassword">
+              <FaLock className="input-icon" />
+              <Form.Control
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                className="modern-input px-5 p-2"
+              />
+              <span className="password-toggle-icon" onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
+            </Form.Group>
+            
+            <Button
+              type="submit"
+              className="modern-login-btn"
+              disabled={loading}
+            >
+              {loading ? (
+                <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" />
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </Form>
+        </div>
+      </div>
     </div>
   );
 };

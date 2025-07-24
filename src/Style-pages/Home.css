@@ -98,3 +98,28 @@
     margin-top: 70px; /* أو أي قيمة تناسب ارتفاع الـ Navbar */
   }
 }
+
+/* Add this to your Home.css file */
+
+.stats-card.purple {
+  background-color: #d4eccb; /* A light purple background */
+}
+
+.stats-card.purple:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px  #b6eba3;
+}
+
+.stats-card.green:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px  #b9e0cf;
+}
+
+.stats-card.peach:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px  #f7caca;
+}
+.stats-card.yellow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px  rgb(248, 229, 176);
+}
