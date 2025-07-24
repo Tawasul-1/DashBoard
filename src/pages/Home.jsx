@@ -82,7 +82,7 @@ const Home = () => {
           </Col>
 
           <Col md={4}>
-            <Link to="/cat" className="text-decoration-none">
+            <Link to="/categories" className="text-decoration-none">
               <Card className="stats-card yellow hoverable">
                 <Card.Body>
                   <h3>{stats ? stats.categories_count : 0}</h3>

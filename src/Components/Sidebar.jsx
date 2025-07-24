@@ -72,7 +72,7 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/cat"
+          to="/categories"
           className={({ isActive }) =>
             `nav-link d-flex align-items-center mb-3 ${isActive ? "active text-white" : ""}`
           }

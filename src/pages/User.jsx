@@ -96,11 +96,11 @@ const User = () => {
                     <td>{user.email}</td>
                     <td>
                       <Badge bg="light" pill>
-                        {user.cardsCount || 0}
+                        {user.cards_count || 0}
                       </Badge>
                     </td>
                     <td>
-                      {user.isPremium ? (
+                      {user.is_premium ? (
                         <Badge bg="warning" text="dark">
                           Premium
                         </Badge>

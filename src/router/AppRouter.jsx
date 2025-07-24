@@ -1,16 +1,16 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "../context/AuthContext";
-import Home from "../Pages/Home";
-import Cat from "../Pages/Cat";
-import Profile from "../Pages/Profile";
-import EditProfile from "../Pages/EditProfile";
-import Login from "../Pages/Login";
-import Signup from "../Pages/Signup";
-import ForgetPassword from "../Pages/ForgetPass";
-import ResetPassword from "../Pages/Reset";
-import Cards from "../Pages/Cards";
-import Sentences from "../Pages/Sentence";
-import User from "../Pages/User";
+import Home from "../pages/Home";
+import Categories from "../pages/Categories";
+import Profile from "../pages/Profile";
+import EditProfile from "../pages/EditProfile";
+import Login from "../pages/Login";
+import Signup from "../pages/Signup";
+import ForgetPassword from "../pages/ForgetPass";
+import ResetPassword from "../pages/Reset";
+import Cards from "../pages/Cards";
+import Sentences from "../pages/Sentence";
+import User from "../pages/User";
 
 function AppRouter() {
   return (
@@ -19,7 +19,7 @@ function AppRouter() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          <Route path="/cat" element={<Cat />} />
+          <Route path="/categories" element={<Categories />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/edit" element={<EditProfile />} />
           <Route path="/login" element={<Login />} />
