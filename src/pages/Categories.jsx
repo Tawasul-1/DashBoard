@@ -315,6 +315,7 @@ const Categories = () => {
                     <Form.Label>Label (English)</Form.Label>
                     <Form.Control
                       type="text"
+                      className="text-dark"
                       value={editedLabel}
                       onChange={(e) => setEditedLabel(e.target.value)}
                     />

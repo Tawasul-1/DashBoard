@@ -3,14 +3,10 @@ import { AuthProvider } from "../context/AuthContext";
 import Home from "../pages/Home";
 import Categories from "../pages/Categories";
 import Profile from "../pages/Profile";
-import EditProfile from "../pages/EditProfile";
 import Login from "../pages/Login";
-import Signup from "../pages/Signup";
-import ForgetPassword from "../pages/ForgetPass";
-import ResetPassword from "../pages/Reset";
 import Cards from "../pages/Cards";
-import Sentences from "../pages/Sentence";
 import User from "../pages/User";
+import DefaultCards from "../pages/DefultCard";
 
 function AppRouter() {
   return (
@@ -21,14 +17,15 @@ function AppRouter() {
           <Route path="/" element={<Home />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/edit" element={<EditProfile />} />
+          <Route path="/user" element={<User />} />
+          <Route path="/default" element={<DefaultCards />} />
+          <Route path="/cards" element={<Cards />} />
           <Route path="/login" element={<Login />} />
+          {/* <Route path="/edit" element={<EditProfile />} /> */}
           {/* <Route path="/signup" element={<Signup />} /> */}
           {/* <Route path="/forgot" element={<ForgetPassword />} /> */}
           {/* <Route path="/reset" element={<ResetPassword />} /> */}
-          <Route path="/cards" element={<Cards />} />
           {/* <Route path="/sent" element={<Sentences />} /> */}
-          <Route path="/user" element={<User />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

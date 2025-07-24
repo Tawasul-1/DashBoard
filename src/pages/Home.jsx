@@ -105,7 +105,7 @@ const Home = () => {
           </Col>
           
           <Col md={6} sm={12}>
-            <Link to="/default-cards" className="text-decoration-none">
+            <Link to="/default" className="text-decoration-none">
               <Card className="stats-card purple">
                 <Card.Body>
                   <h3>{stats ? stats.default_board_cards_count : 0}</h3>
