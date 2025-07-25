@@ -313,8 +313,6 @@ const Cards = () => {
                   className="rounded"
                 />
               </Form.Group>
-
-              
             </Form>
           </Modal.Body>
           <Modal.Footer className="justify-content-center border-0">
