@@ -44,6 +44,19 @@ const CardService = {
       throw handleApiError(error);
     }
   },
+  async getUserDefaultCards(token) {
+    try {
+      const response = await apiClient.get("/cards/default/", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response;
+    } catch (error) {
+      console.error("Error fetching user cards:", error);
+      throw handleApiError(error);
+    }
+  },
 
   async updateCard(cardId, formData, token) {
     try {

@@ -12,7 +12,6 @@ const DefaultCards = () => {
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Edit modal state
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingCardId, setEditingCardId] = useState(null);
   const [editedTitleEn, setEditedTitleEn] = useState("");
@@ -20,7 +19,6 @@ const DefaultCards = () => {
   const [editedCategory, setEditedCategory] = useState(null);
   const [editedImageFile, setEditedImageFile] = useState(null);
 
-  // Add modal state
   const [showAddModal, setShowAddModal] = useState(false);
   const [newTitleEn, setNewTitleEn] = useState("");
   const [newTitleAr, setNewTitleAr] = useState("");
@@ -38,12 +36,16 @@ const DefaultCards = () => {
       try {
         const token = getAuthToken();
         const [cardsResponse, categoriesResponse] = await Promise.all([
-          CardService.getUserCards(token), // Fetches the default cards
-          CategoryService.getAllCategories(token), // Fetches categories for dropdown
+          CardService.getUserDefaultCards(token),
+          CategoryService.getAllCategories(token),
         ]);
-        console.log("Cards Response:", cardsResponse);
-        setDefaultCards(cardsResponse.data.results || cardsResponse.data);
-        setCategories(categoriesResponse.data.results || categoriesResponse.data);
+
+        // Ensure defaultCards is always an array
+        const cardsData = cardsResponse.data.results || cardsResponse.data || [];
+        const categoriesData = categoriesResponse.data.results || categoriesResponse.data || [];
+
+        setDefaultCards(Array.isArray(cardsData) ? cardsData : []);
+        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
       } catch (err) {
         setError(err.message);
         if (err.response?.status === 401) {
@@ -61,7 +63,7 @@ const DefaultCards = () => {
     setEditingCardId(card.id);
     setEditedTitleEn(card.title_en);
     setEditedTitleAr(card.title_ar);
-    setEditedCategory(card.category.id);
+    setEditedCategory(card.category?.id || "");
     setEditedImageFile(null);
     setShowEditModal(true);
   };
@@ -128,7 +130,7 @@ const DefaultCards = () => {
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="dashboard-wrapper d-flex">
         <Sidebar />
@@ -137,8 +139,9 @@ const DefaultCards = () => {
         </div>
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
       <div className="dashboard-wrapper d-flex">
         <Sidebar />
@@ -147,6 +150,7 @@ const DefaultCards = () => {
         </div>
       </div>
     );
+  }
 
   return (
     <div className="dashboard-wrapper d-flex flex-column flex-md-row">
@@ -167,21 +171,16 @@ const DefaultCards = () => {
 
           <div className="page-header text-center mb-4 bg-white p-4 rounded-lg shadow-sm">
             <h2 className="header-title">Default PECS Cards</h2>
-            <Button variant="primary" className="add-new-btn" onClick={() => setShowAddModal(true)}>
-              <i className="fas fa-plus-circle me-2"></i> Add Default Card
-            </Button>
           </div>
 
-          <Row className="g-4">
-            {defaultCards.length === 0 ? (
-              <Col xs={12}>
-                <div className="text-center p-5 bg-white rounded-lg shadow-sm">
-                  <h3 className="text-muted mb-3">No Cards Found</h3>
-                  <p className="text-muted">Start by adding your first PECS card.</p>
-                </div>
-              </Col>
-            ) : (
-              defaultCards.map((card) => (
+          {defaultCards.length === 0 ? (
+            <div className="text-center p-5 bg-white rounded-lg shadow-sm">
+              <h3 className="text-muted mb-3">No Cards Found</h3>
+              <p className="text-muted">Start by adding your first PECS card.</p>
+            </div>
+          ) : (
+            <Row className="g-4">
+              {defaultCards.map((card) => (
                 <Col key={card.id} xs={12} sm={6} md={4} lg={3}>
                   <Card className="h-100 border-0 shadow-sm overflow-hidden rounded-3">
                     <Card.Body className="d-flex flex-column">
@@ -190,6 +189,9 @@ const DefaultCards = () => {
                           src={card.image}
                           alt={card.title_en}
                           className="w-100 h-100 object-fit-cover"
+                          onError={(e) => {
+                            e.target.src = "/default-card-image.png";
+                          }}
                         />
                       </div>
                       <Card.Title className="card-title-en text-center mb-2">
@@ -222,183 +224,10 @@ const DefaultCards = () => {
                     </Card.Body>
                   </Card>
                 </Col>
-              ))
-            )}
-          </Row>
+              ))}
+            </Row>
+          )}
         </Container>
-
-        {/* Edit Modal */}
-        <Modal
-          show={showEditModal}
-          onHide={() => setShowEditModal(false)}
-          centered
-          size="lg"
-          className="wow-modal"
-        >
-          <Modal.Header closeButton className="border-0">
-            <Modal.Title className="w-100 text-center">Update Card Image</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="p-4">
-            {/* Get the card object based on the editingCardId */}
-            {editingCardId && (
-              <>
-                {defaultCards.map((card) => {
-                  if (card.id === editingCardId) {
-                    return (
-                      <div key={card.id}>
-                        {/* Display current image if exists */}
-                        {card.image && (
-                          <div
-                            className="bg-light rounded-lg p-2 mb-3 text-center"
-                            style={{ maxHeight: "200px" }}
-                          >
-                            <h5>Current Image</h5>
-                            <img
-                              src={card.image}
-                              alt="Current card"
-                              className="img-fluid rounded"
-                              style={{ maxHeight: "180px" }}
-                            />
-                          </div>
-                        )}
-
-                        {/* File input to update image */}
-                        <Form.Group>
-                          <Form.Label>Update Image</Form.Label>
-                          <Form.Control
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setEditedImageFile(e.target.files[0])}
-                          />
-                        </Form.Group>
-
-                        {/* Show preview of new image */}
-                        {editedImageFile && (
-                          <div className="mt-3 text-center">
-                            <h5>Image Preview</h5>
-                            <img
-                              src={URL.createObjectURL(editedImageFile)}
-                              alt="Preview"
-                              className="img-fluid mb-3"
-                              style={{ maxWidth: "100%", height: "auto" }}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  }
-                  return null; // Return nothing for cards that don't match
-                })}
-              </>
-            )}
-          </Modal.Body>
-          <Modal.Footer className="justify-content-center border-0">
-            <Button
-              variant="outline-secondary"
-              onClick={() => setShowEditModal(false)}
-              className="rounded-pill px-4"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="outline-primary"
-              onClick={handleSaveEdit}
-              className="rounded-pill px-4"
-              disabled={!editedTitleEn || !editedTitleAr || !editedCategory}
-            >
-              Save Changes
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        {/* Add Modal */}
-        <Modal
-          show={showAddModal}
-          onHide={() => setShowAddModal(false)}
-          centered
-          size="lg"
-          className="wow-modal"
-        >
-          <Modal.Header closeButton className="border-0">
-            <Modal.Title className="w-100 text-center">Add New Card</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="p-4">
-            <Form>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Title (English)</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={newTitleEn}
-                      onChange={(e) => setNewTitleEn(e.target.value)}
-                      placeholder="e.g. Apple"
-                      required
-                      className="rounded"
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group>
-                    <Form.Label>Title (Arabic)</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={newTitleAr}
-                      onChange={(e) => setNewTitleAr(e.target.value)}
-                      placeholder="مثلا. تفاح"
-                      required
-                      className="rounded"
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Form.Group>
-                <Form.Label>Category</Form.Label>
-                <Form.Select
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                  required
-                  className="rounded"
-                >
-                  <option value="">Select Category</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name_en}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-              <Row>
-                <Col md={12}>
-                  <Form.Group>
-                    <Form.Label>Card Image (Required)</Form.Label>
-                    <Form.Control
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => setNewImageFile(e.target.files[0])}
-                      required
-                      className="rounded"
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer className="justify-content-center border-0">
-            <Button variant="outline-secondary" onClick={() => setShowAddModal(false)}
-              className="rounded-pill px-4">
-              Cancel
-            </Button>
-            <Button
-              variant="outline-success"
-              onClick={handleAddNewCard}
-              disabled={!newTitleEn || !newTitleAr || !newImageFile || !newCategory}
-              className="rounded-pill px-4"
-            >
-              Add Card
-            </Button>
-          </Modal.Footer>
-        </Modal>
       </main>
     </div>
   );
