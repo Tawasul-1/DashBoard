@@ -6,7 +6,6 @@ import CardService from "../api/services/CardService";
 import CategoryService from "../api/services/CategoryService";
 
 const Cards = () => {
-  // State management
   const [state, setState] = useState({
     cards: [],
     categories: [],
@@ -21,14 +20,13 @@ const Cards = () => {
     newTitleAr: "",
     newCategory: "",
     newImageFile: null,
+    isDefault: false,
   });
 
-  // Helper function to update state
   const updateState = (newState) => {
     setState((prev) => ({ ...prev, ...newState }));
   };
 
-  // Get authentication token
   const getAuthToken = () => {
     const token = localStorage.getItem("authToken");
     if (!token) {
@@ -37,13 +35,10 @@ const Cards = () => {
     return token;
   };
 
-  // Fetch cards and categories from API
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = getAuthToken();
-
-        // Fetch cards and categories in parallel
         const [cardsResponse, categoriesResponse] = await Promise.all([
           CardService.getUserCards(token),
           CategoryService.getAllCategories(token),
@@ -71,16 +66,15 @@ const Cards = () => {
     fetchData();
   }, []);
 
-  // Handle edit card
   const handleEdit = (card) => {
     updateState({
       editingCardId: card.id,
       editedImageFile: null,
       showEditModal: true,
+      isDefault: card.is_default || false,
     });
   };
 
-  // Save edited card
   const handleSaveEdit = async () => {
     try {
       const token = getAuthToken();
@@ -89,14 +83,18 @@ const Cards = () => {
       if (state.editedImageFile) {
         formData.append("image", state.editedImageFile);
       }
+      formData.append("is_default", state.isDefault);
 
       const response = await CardService.updateCard(state.editingCardId, formData, token);
 
       updateState({
-        cards: state.cards.map((card) => (card.id === state.editingCardId ? response.data : card)),
-        successMessage: "Card image updated successfully!",
+        cards: state.cards.map((card) => 
+          card.id === state.editingCardId ? { ...card, ...response.data } : card
+        ),
+        successMessage: "Card updated successfully!",
         showEditModal: false,
         editedImageFile: null,
+        isDefault: false,
       });
 
       setTimeout(() => updateState({ successMessage: null }), 3000);
@@ -108,7 +106,6 @@ const Cards = () => {
     }
   };
 
-  // Delete card
   const handleDelete = async (cardId) => {
     if (window.confirm("Are you sure you want to delete this card?")) {
       try {
@@ -130,10 +127,8 @@ const Cards = () => {
     }
   };
 
-  // Add new card
   const handleAddNewCard = async () => {
     try {
-      // Validate form
       if (!state.newTitleEn || !state.newTitleAr || !state.newCategory || !state.newImageFile) {
         updateState({
           error: "Please fill all required fields",
@@ -149,6 +144,7 @@ const Cards = () => {
       formData.append("title_ar", state.newTitleAr);
       formData.append("category_id", state.newCategory);
       formData.append("image", state.newImageFile);
+      formData.append("is_default", state.isDefault);
 
       const response = await CardService.addNewCard(formData, token);
 
@@ -160,6 +156,7 @@ const Cards = () => {
         newTitleAr: "",
         newCategory: "",
         newImageFile: null,
+        isDefault: false,
       });
 
       setTimeout(() => updateState({ successMessage: null }), 3000);
@@ -287,7 +284,7 @@ const Cards = () => {
           className="wow-modal"
         >
           <Modal.Header closeButton className="border-0">
-            <Modal.Title className="w-100 text-center">Update Card Image</Modal.Title>
+            <Modal.Title className="w-100 text-center">Update Card</Modal.Title>
           </Modal.Header>
           <Modal.Body className="p-4">
             <div className="text-center mb-4">
@@ -309,8 +306,15 @@ const Cards = () => {
                   type="file"
                   accept="image/*"
                   onChange={(e) => updateState({ editedImageFile: e.target.files[0] })}
-                  required
                   className="rounded"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Check
+                  type="checkbox"
+                  label="Set as default"
+                  checked={state.isDefault}
+                  onChange={(e) => updateState({ isDefault: e.target.checked })}
                 />
               </Form.Group>
             </Form>
@@ -326,10 +330,9 @@ const Cards = () => {
             <Button
               variant="primary"
               onClick={handleSaveEdit}
-              disabled={!state.editedImageFile}
               className="rounded-pill px-4"
             >
-              Update Image
+              Update Card
             </Button>
           </Modal.Footer>
         </Modal>
@@ -399,6 +402,14 @@ const Cards = () => {
                   onChange={(e) => updateState({ newImageFile: e.target.files[0] })}
                   required
                   className="rounded"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Check
+                  type="checkbox"
+                  label="Set as default"
+                  checked={state.isDefault}
+                  onChange={(e) => updateState({ isDefault: e.target.checked })}
                 />
               </Form.Group>
             </Form>
