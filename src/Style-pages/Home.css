@@ -123,3 +123,49 @@
   transform: translateY(-5px);
   box-shadow: 0 8px 25px  rgb(248, 229, 176);
 }
+.profile-card {
+  background: #fff;
+  border-radius: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.profile-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0, 81, 132, 0.15);
+}
+
+.profile-info p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+#prmary {
+  border: 1px solid #173067 !important;
+  color: #173067 !important;
+  background-color: white !important;
+}
+#prmary:hover {
+  background-color: #173067 !important;
+  color: white;
+}
+
+
+/* Adjust main content padding with sidebar */
+@media (min-width: 750px) {
+  .main-content {
+    margin-left: 260px; /* match sidebar width */
+  }
+}
+
+@media (max-width: 749px) {
+  .main-content {
+    margin-top: 70px; /* match top navbar height */
+  }
+
+  .profile-card {
+    padding: 1.5rem;
+  }
+
+  .profile-info p {
+    font-size: 0.95rem;
+  }
+}

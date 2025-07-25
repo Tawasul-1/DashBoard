@@ -44,7 +44,7 @@ const Profile = () => {
     return (
       <div className="dashboard-wrapper d-flex">
         <Sidebar />
-        <div className="main-content flex-grow-1 p-4">
+        <div className="">
           <Container className="py-4">
             <Row className="justify-content-center">
               <Col className="text-center">
@@ -81,12 +81,10 @@ const Profile = () => {
   }
 
   return (
-    <div className="dashboard-wrapper d-flex">
-      <Sidebar />
-      <div className="main-content flex-grow-1 p-4">
-        <Container className="py-4">
+      <div className=" flex-grow-1 p-3">
+        <div className="container-fluid">
           <Row className="justify-content-center">
-            <Col lg={8} md={10}>
+            <Col lg={12} md={12}>
               <Card className="profile-card shadow p-4">
                 <Row className="align-items-center">
                   <Col md={4} className="text-center mb-4 mb-md-0">
@@ -137,9 +135,9 @@ const Profile = () => {
               </Card>
             </Col>
           </Row>
-        </Container>
+        </div>
       </div>
-    </div>
+   
   );
 };
 

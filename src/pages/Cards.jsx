@@ -314,17 +314,7 @@ const Cards = () => {
                 />
               </Form.Group>
 
-              {state.editedImageFile && (
-                <div className="mt-3 bg-light rounded-lg p-2">
-                  <h6 className="text-center mb-2">New Image Preview:</h6>
-                  <img
-                    src={URL.createObjectURL(state.editedImageFile)}
-                    alt="Preview"
-                    className="img-fluid rounded"
-                    style={{ maxHeight: "150px" }}
-                  />
-                </div>
-              )}
+              
             </Form>
           </Modal.Body>
           <Modal.Footer className="justify-content-center border-0">

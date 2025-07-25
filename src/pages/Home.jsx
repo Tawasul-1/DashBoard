@@ -1,15 +1,14 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import { NavLink, Link } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import "../Style-pages/Home.css";
 import Sidebar from "../Components/Sidebar";
 import CardService from "../api/services/CardService";
-import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
+import Profile from "./Profile"; // Import the Profile component
 
 const Home = () => {
-  // --- THIS IS THE CORRECTED LINE ---
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -69,6 +68,8 @@ const Home = () => {
           </div>
         </div>
 
+        <Profile /> 
+        
         {/* Stats Cards */}
         <Row className="g-4 mb-4">
           <Col md={6} sm={12}>
@@ -103,7 +104,7 @@ const Home = () => {
               </Card>
             </Link>
           </Col>
-          
+
           <Col md={6} sm={12}>
             <Link to="/default" className="text-decoration-none">
               <Card className="stats-card purple">

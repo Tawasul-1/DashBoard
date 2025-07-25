@@ -33,7 +33,7 @@ const CardService = {
 
   async getUserCards(token) {
     try {
-      const response = await apiClient.get("/cards/cards/", {
+      const response = await apiClient.get("/cards/cards/?limit=100", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

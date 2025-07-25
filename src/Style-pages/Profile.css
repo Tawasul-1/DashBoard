@@ -2,6 +2,7 @@
   background: #fff;
   border-radius: 1rem;
   transition: all 0.3s ease-in-out;
+  width: 100%;
 }
 
 .profile-card:hover {
@@ -25,22 +26,5 @@
 
 
 /* Adjust main content padding with sidebar */
-@media (min-width: 750px) {
-  .main-content {
-    margin-left: 260px; /* match sidebar width */
-  }
-}
 
-@media (max-width: 749px) {
-  .main-content {
-    margin-top: 70px; /* match top navbar height */
-  }
 
-  .profile-card {
-    padding: 1.5rem;
-  }
-
-  .profile-info p {
-    font-size: 0.95rem;
-  }
-}

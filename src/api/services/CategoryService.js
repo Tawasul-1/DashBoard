@@ -8,7 +8,7 @@ const CategoryService = {
       const categoriesResponse = await apiClient.get("/cards/categories/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const cardsResponse = await apiClient.get("/cards/cards/", {
+      const cardsResponse = await apiClient.get("/cards/cards/?limit=100", {
         headers: { Authorization: `Bearer ${token}` },
       });
 

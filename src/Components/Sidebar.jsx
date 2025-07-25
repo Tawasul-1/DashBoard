@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { FaHome } from "react-icons/fa";
 import { BsCollectionPlay, BsGrid } from "react-icons/bs";
+import { TbCardsFilled } from "react-icons/tb";
 import { CgProfile } from "react-icons/cg";
 import { BiMenu, BiLogOut } from "react-icons/bi";
 import "./Sidebar.css";
@@ -108,13 +109,23 @@ const Sidebar = () => {
         </NavLink>
 
         <NavLink
-          to="/profile"
+          to="/user"
           className={({ isActive }) =>
             `nav-link d-flex align-items-center mb-3 ${isActive ? "active text-white" : ""}`
           }
           onClick={() => isMobile && setIsOpen(false)}
         >
-          <CgProfile className="me-2" /> Profile
+          <CgProfile className="me-2" /> All Users
+        </NavLink>
+
+        <NavLink
+          to="/default"
+          className={({ isActive }) =>
+            `nav-link d-flex align-items-center mb-3 ${isActive ? "active text-white" : ""}`
+          }
+          onClick={() => isMobile && setIsOpen(false)}
+        >
+          <TbCardsFilled className="me-2" /> Default Cards
         </NavLink>
 
         <div className="mt-auto">
