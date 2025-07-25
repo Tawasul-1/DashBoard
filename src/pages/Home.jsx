@@ -34,7 +34,6 @@ const Home = () => {
       <div className="dashboard-wrapper d-flex">
         <Sidebar />
         <div className="main-content flex-grow-1 p-4 d-flex justify-content-center align-items-center">
-          {/* You can use a Bootstrap spinner here for a better look */}
           <div className="spinner-border text-primary" role="status">
             <span className="visually-hidden">Loading...</span>
           </div>

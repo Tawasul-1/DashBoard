@@ -31,33 +31,32 @@ const DefaultCards = () => {
     return token;
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = getAuthToken();
-        const [cardsResponse, categoriesResponse] = await Promise.all([
-          CardService.getUserDefaultCards(token),
-          CategoryService.getAllCategories(token),
-        ]);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const token = getAuthToken();
+      const [cardsResponse, categoriesResponse] = await Promise.all([
+        CardService.getUserDefaultCards(token),
+        CategoryService.getAllCategories(token),
+      ]);
 
-        // Ensure defaultCards is always an array
-        const cardsData = cardsResponse.data.results || cardsResponse.data || [];
-        const categoriesData = categoriesResponse.data.results || categoriesResponse.data || [];
+      const cardsData = cardsResponse.data.cards || cardsResponse.data || [];
+      const categoriesData = categoriesResponse.data.results || categoriesResponse.data || [];
 
-        setDefaultCards(Array.isArray(cardsData) ? cardsData : []);
-        setCategories(Array.isArray(categoriesData) ? categoriesData : []);
-      } catch (err) {
-        setError(err.message);
-        if (err.response?.status === 401) {
-          localStorage.removeItem("authToken");
-          window.location.href = "/login";
-        }
-      } finally {
-        setLoading(false);
+      setDefaultCards(Array.isArray(cardsData) ? cardsData : []);
+      setCategories(Array.isArray(categoriesData) ? categoriesData : []);
+    } catch (err) {
+      setError(err.message);
+      if (err.response?.status === 401) {
+        localStorage.removeItem("authToken");
+        window.location.href = "/login";
       }
-    };
-    fetchData();
-  }, []);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
 
   const handleEdit = (card) => {
     setEditingCardId(card.id);
@@ -203,24 +202,6 @@ const DefaultCards = () => {
                       <Card.Text className="card-category text-muted text-center mb-3">
                         {card.category?.name_en || "Uncategorized"}
                       </Card.Text>
-                      <div className="action-buttons d-flex justify-content-center gap-2 mt-auto">
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          className="rounded-pill"
-                          onClick={() => handleEdit(card)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          className="rounded-pill"
-                          onClick={() => handleDelete(card.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
                     </Card.Body>
                   </Card>
                 </Col>

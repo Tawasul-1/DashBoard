@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { Button, Form, Spinner, Alert } from "react-bootstrap";
 import { useNavigate, Link } from "react-router-dom";
-import "../Style-pages/Login.css"; // Make sure this path is correct
+import "../Style-pages/Login.css"; 
 import { authService } from "../api/services/AuthenticationService";
 import { useAuth } from "../context/AuthContext";
-// --- Import the necessary icons ---
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Login = () => {
@@ -16,7 +15,6 @@ const Login = () => {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  // --- State to toggle password visibility ---
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
@@ -28,30 +26,29 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return;
-    setError("");
-    setLoading(true);
-    try {
-      const response = await authService.login({
-        email: formData.email,
-        password: formData.password,
-      });
-      const data = response.data;
-      login(data.user, data.access, data.refresh);
-      setTimeout(() => {
-        setLoading(false);
-        navigate("/");
-      }, 100);
-    } catch (err) {
-      setError(
-        err.response?.data?.detail ||
-          err.response?.data?.message ||
-          "Login failed. Please check your credentials."
-      );
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  if (loading) return;
+  setError("");
+  setLoading(true);
+  try {
+    const response = await authService.login({
+      email: formData.email,
+      password: formData.password,
+    });
+    const data = response.data;
+    login(data.user, data.access, data.refresh);
+    navigate("/");  
+  } catch (err) {
+    setError(
+      err.response?.data?.detail ||
+      err.response?.data?.message ||
+      "Login failed. Please check your credentials."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="modern-login-container">
