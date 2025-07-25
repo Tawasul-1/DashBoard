@@ -144,7 +144,7 @@ const Cards = () => {
       formData.append("title_ar", state.newTitleAr);
       formData.append("category_id", state.newCategory);
       formData.append("image", state.newImageFile);
-      formData.append("is_default", state.isDefault);
+formData.append("is_default", state.isDefault ? "true" : "false");
 
       const response = await CardService.addNewCard(formData, token);
 
