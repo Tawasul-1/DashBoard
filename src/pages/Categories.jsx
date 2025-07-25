@@ -1,27 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Form, Row, Col, Modal, Spinner, Alert, Container } from "react-bootstrap";
-import "../Style-pages/Cards.css"; // Make sure this path is correct
+import "../Style-pages/Cards.css";
 import Sidebar from "../Components/Sidebar";
 import CategoryService from "../api/services/CategoryService";
 
 const Categories = () => {
-  // --- All your existing state and functions remain the same ---
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [successMessage, setSuccessMessage] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [newLabel, setNewLabel] = useState("");
-  const [newLabelAr, setNewLabelAr] = useState("");
-  const [newImageFile, setNewImageFile] = useState(null);
-  const [newImagePreview, setNewImagePreview] = useState(null);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [editedLabel, setEditedLabel] = useState("");
-  const [editedLabelAr, setEditedLabelAr] = useState("");
-  const [editedImage, setEditedImage] = useState("");
-  const [editedImageFile, setEditedImageFile] = useState(null);
-  const [editedImagePreview, setEditedImagePreview] = useState(null);
+  const [state, setState] = useState({
+    categories: [],
+    loading: true,
+    error: null,
+    successMessage: null,
+    showAddModal: false,
+    showEditModal: false,
+    editingId: null,
+    newNameEn: "",
+    newNameAr: "",
+    newImageFile: null,
+    newImagePreview: null,
+    editedImage: "",
+    editedImageFile: null,
+    editedImagePreview: null,
+  });
+
+  const updateState = (newState) => {
+    setState((prev) => ({ ...prev, ...newState }));
+  };
 
   const getAuthToken = () => {
     const token = localStorage.getItem("authToken");
@@ -34,125 +37,140 @@ const Categories = () => {
       try {
         const token = getAuthToken();
         const response = await CategoryService.getAllCategoriesWithCardCount(token);
-        setCategories(response.data);
+        updateState({
+          categories: response.data,
+          loading: false,
+          error: null,
+        });
       } catch (err) {
-        setError(err.message);
+        updateState({
+          error: err.message,
+          loading: false,
+        });
         if (err.response?.status === 401) {
           localStorage.removeItem("authToken");
           window.location.href = "/login";
         }
-      } finally {
-        setLoading(false);
       }
     };
     fetchCategoriesWithCounts();
   }, []);
 
   useEffect(() => {
-    if (newImageFile) {
-      const url = URL.createObjectURL(newImageFile);
-      setNewImagePreview(url);
+    if (state.newImageFile) {
+      const url = URL.createObjectURL(state.newImageFile);
+      updateState({ newImagePreview: url });
       return () => URL.revokeObjectURL(url);
     }
-  }, [newImageFile]);
+  }, [state.newImageFile]);
 
   useEffect(() => {
-    if (editedImageFile) {
-      const url = URL.createObjectURL(editedImageFile);
-      setEditedImagePreview(url);
+    if (state.editedImageFile) {
+      const url = URL.createObjectURL(state.editedImageFile);
+      updateState({ editedImagePreview: url });
       return () => URL.revokeObjectURL(url);
     }
-  }, [editedImageFile]);
+  }, [state.editedImageFile]);
 
   const handleAddCategory = async () => {
-    // ... logic is identical
     try {
       const token = getAuthToken();
       const formData = new FormData();
-      formData.append("label", newLabel);
-      formData.append("label_ar", newLabelAr);
-      formData.append("image", newImageFile);
+      formData.append("name_en", state.newNameEn);
+      formData.append("name_ar", state.newNameAr);
+      formData.append("image", state.newImageFile);
+
+      // Debug form data before sending
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
 
       const response = await CategoryService.createCategory(formData, token);
 
-      setCategories([{ ...response.data, cards_count: 0 }, ...categories]);
+      updateState({
+        categories: [{ ...response.data, cards_count: 0 }, ...state.categories],
+        successMessage: "Category added successfully!",
+        newNameEn: "",
+        newNameAr: "",
+        newImageFile: null,
+        newImagePreview: null,
+        showAddModal: false,
+      });
 
-      setSuccessMessage("Category added successfully!");
-      setTimeout(() => setSuccessMessage(null), 3000);
-
-      setNewLabel("");
-      setNewLabelAr("");
-      setNewImageFile(null);
-      setNewImagePreview(null);
-      setShowAddModal(false);
+      setTimeout(() => updateState({ successMessage: null }), 3000);
     } catch (err) {
-      setError(err.message);
-      setTimeout(() => setError(null), 3000);
+      const errorMessage = err.response?.data?.message || 
+                         JSON.stringify(err.response?.data) || 
+                         err.message;
+      updateState({
+        error: errorMessage
+      });
+      setTimeout(() => updateState({ error: null }), 3000);
     }
   };
 
   const handleEdit = (category) => {
-    // ... logic is identical
-    setEditingId(category.id);
-    setEditedLabel(category.label);
-    setEditedLabelAr(category.label_ar);
-    setEditedImage(category.image);
-    setEditedImageFile(null);
-    setEditedImagePreview(null);
-    setShowEditModal(true);
+    updateState({
+      editingId: category.id,
+      editedImage: category.image,
+      editedImageFile: null,
+      editedImagePreview: null,
+      showEditModal: true,
+    });
   };
 
   const handleSave = async () => {
-    // ... logic is identical
     try {
       const token = getAuthToken();
       const formData = new FormData();
-      formData.append("label", editedLabel);
-      formData.append("label_ar", editedLabelAr);
-      if (editedImageFile) {
-        formData.append("image", editedImageFile);
+      if (state.editedImageFile) {
+        formData.append("image", state.editedImageFile);
       }
 
-      const response = await CategoryService.updateCategory(editingId, formData, token);
+      const response = await CategoryService.updateCategory(state.editingId, formData, token);
 
-      const updated = categories.map((cat) =>
-        cat.id === editingId ? { ...response.data, cards_count: cat.cards_count } : cat
-      );
-      setCategories(updated);
+      updateState({
+        categories: state.categories.map((cat) =>
+          cat.id === state.editingId ? { ...response.data, cards_count: cat.cards_count } : cat
+        ),
+        successMessage: "Category image updated successfully!",
+        showEditModal: false,
+      });
 
-      setSuccessMessage("Category updated successfully!");
-      setTimeout(() => setSuccessMessage(null), 3000);
-
-      setShowEditModal(false);
+      setTimeout(() => updateState({ successMessage: null }), 3000);
     } catch (err) {
-      setError(err.message);
-      setTimeout(() => setError(null), 3000);
+      updateState({
+        error: err.message,
+      });
+      setTimeout(() => updateState({ error: null }), 3000);
     }
   };
 
   const handleDelete = async (id) => {
-    // ... logic is identical
     if (window.confirm("Are you sure you want to delete this category and all its cards?")) {
       try {
         const token = getAuthToken();
         await CategoryService.deleteCategory(id, token);
-        setCategories(categories.filter((cat) => cat.id !== id));
-
-        setSuccessMessage("Category deleted successfully!");
-        setTimeout(() => setSuccessMessage(null), 3000);
+        updateState({
+          categories: state.categories.filter((cat) => cat.id !== id),
+          successMessage: "Category deleted successfully!",
+        });
+        setTimeout(() => updateState({ successMessage: null }), 3000);
       } catch (err) {
-        setError(err.message);
-        setTimeout(() => setError(null), 3000);
+        updateState({
+          error: err.message,
+        });
+        setTimeout(() => updateState({ error: null }), 3000);
       }
     }
   };
 
-  if (loading) {
+  if (state.loading) {
     return (
       <div className="dashboard-wrapper d-flex">
         <Sidebar />
         <div className="p-4 flex-grow-1 main-content d-flex justify-content-center align-items-center">
-          <Spinner animation="border" variant="light" />
+          <Spinner animation="border" variant="primary" />
         </div>
       </div>
     );
@@ -163,202 +181,250 @@ const Categories = () => {
       <Sidebar />
       <main className="p-4 flex-grow-1 main-content">
         <Container fluid>
-          {successMessage && (
-            <Alert variant="success" onClose={() => setSuccessMessage(null)} dismissible>
-              {successMessage}
+          {state.successMessage && (
+            <Alert
+              variant="success"
+              onClose={() => updateState({ successMessage: null })}
+              dismissible
+              className="rounded-lg"
+            >
+              {state.successMessage}
             </Alert>
           )}
-          {error && (
-            <Alert variant="danger" onClose={() => setError(null)} dismissible>
-              {error}
+          {state.error && (
+            <Alert
+              variant="danger"
+              onClose={() => updateState({ error: null })}
+              dismissible
+              className="rounded-lg"
+            >
+              {state.error}
             </Alert>
           )}
 
-          {/* --- UPDATED HEADER --- */}
-          <div className="page-header text-center mb-4">
-            <h2 className="header-title">Manage Categories</h2>
-            <Button variant="primary" className="add-new-btn" onClick={() => setShowAddModal(true)}>
+          <div className="page-header text-center mb-4 bg-white p-4 rounded-lg shadow-sm">
+            <h2 className="header-title mb-3">Manage Categories</h2>
+            <Button
+              variant="primary"
+              className="add-new-btn rounded-pill px-4"
+              onClick={() => updateState({ showAddModal: true })}
+            >
               <i className="fas fa-plus-circle me-2"></i> Add New Category
             </Button>
           </div>
 
           <Row className="g-4">
-            {categories.length === 0 ? (
+            {state.categories.length === 0 ? (
               <Col xs={12}>
-                <div className="text-center p-5 bg-light rounded-3">
-                  <h3 className="text-muted">No Categories Found</h3>
-                  <p>Start by adding a new category.</p>
+                <div className="text-center p-5 bg-white rounded-lg shadow-sm">
+                  <h3 className="text-muted mb-3">No Categories Found</h3>
+                  <p className="text-muted">Start by adding your first category.</p>
                 </div>
               </Col>
             ) : (
-              categories.map((category) => (
+              state.categories.map((category) => (
                 <Col key={category.id} xs={12} sm={6} md={4} lg={3}>
-                  {/* --- UPDATED CARD --- */}
-                  <div className="wow-card-container">
-                    <Card className="wow-card">
-                      <Card.Body>
-                        <div className="img-container mb-3">
-                          <img src={category.image} alt={category.label} className="card-img" />
-                        </div>
-                        <Card.Title className="card-title-en">{category.label}</Card.Title>
-                        <Card.Title className="card-title-ar">{category.label_ar}</Card.Title>
-                        <Card.Text className="card-count">
-                          Cards: <strong>{category.cards_count || 0}</strong>
-                        </Card.Text>
-                        <div className="action-buttons mt-3">
-                          <Button variant="primary" size="sm" onClick={() => handleEdit(category)}>
-                            Edit
-                          </Button>
-                          <Button
-                            variant="danger"
-                            size="sm"
-                            onClick={() => handleDelete(category.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </Card.Body>
-                    </Card>
-                  </div>
+                  <Card className="h-100 border-0 shadow-sm rounded-lg overflow-hidden">
+                    <Card.Body className="d-flex flex-column">
+                      <div
+                        className="img-container mb-3 bg-light rounded-lg overflow-hidden"
+                        style={{ height: "150px" }}
+                      >
+                        <img
+                          src={category.image}
+                          alt={category.name_en}
+                          className="w-100 h-100 object-fit-cover"
+                        />
+                      </div>
+                      <Card.Title className="card-title-en text-center mb-2">
+                        {category.name_en}
+                      </Card.Title>
+                      <Card.Title className="card-title-ar text-center mb-3">
+                        {category.name_ar}
+                      </Card.Title>
+                      <Card.Text className="card-count text-muted text-center mb-3">
+                        Cards: <strong>{category.cards_count || 0}</strong>
+                      </Card.Text>
+                      <div className="action-buttons d-flex justify-content-center gap-2 mt-auto">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="rounded-pill"
+                          onClick={() => handleEdit(category)}
+                        >
+                          Edit Image
+                        </Button>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          className="rounded-pill"
+                          onClick={() => handleDelete(category.id)}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </Card.Body>
+                  </Card>
                 </Col>
               ))
             )}
           </Row>
         </Container>
 
-        {/* --- UPDATED MODALS --- */}
+        {/* Add Category Modal */}
         <Modal
-          show={showAddModal}
-          onHide={() => setShowAddModal(false)}
+          show={state.showAddModal}
+          onHide={() => updateState({ showAddModal: false })}
           centered
           size="lg"
           className="wow-modal"
         >
-          <Modal.Header closeButton>
+          <Modal.Header closeButton className="border-0">
             <Modal.Title className="w-100 text-center">Add New Category</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="p-4">
             <Form>
               <Row>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Label (English)</Form.Label>
+                    <Form.Label>Name (English) *</Form.Label>
                     <Form.Control
                       type="text"
-                      value={newLabel}
-                      onChange={(e) => setNewLabel(e.target.value)}
+                      value={state.newNameEn}
+                      onChange={(e) => updateState({ newNameEn: e.target.value })}
                       placeholder="e.g. Food"
+                      className="rounded"
+                      required
                     />
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Label (Arabic)</Form.Label>
+                    <Form.Label>Name (Arabic) *</Form.Label>
                     <Form.Control
                       type="text"
-                      value={newLabelAr}
-                      onChange={(e) => setNewLabelAr(e.target.value)}
+                      value={state.newNameAr}
+                      onChange={(e) => updateState({ newNameAr: e.target.value })}
                       placeholder="مثال: طعام"
+                      className="rounded"
+                      required
                     />
                   </Form.Group>
                 </Col>
               </Row>
               <Form.Group className="mb-3">
-                <Form.Label>Category Image</Form.Label>
+                <Form.Label>Category Image *</Form.Label>
                 <Form.Control
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setNewImageFile(e.target.files[0])}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      updateState({ newImageFile: e.target.files[0] });
+                    }
+                  }}
+                  className="rounded"
+                  required
                 />
+                <Form.Text className="text-muted">
+                  Upload a clear image representing this category
+                </Form.Text>
               </Form.Group>
-              {newImagePreview && (
-                <div className="text-center mt-3">
+              {state.newImagePreview && (
+                <div className="text-center mt-3 bg-light rounded-lg p-2">
                   <img
-                    src={newImagePreview}
+                    src={state.newImagePreview}
                     alt="Preview"
                     className="img-fluid rounded"
-                    style={{ height: "100px", objectFit: "contain" }}
+                    style={{ maxHeight: "150px" }}
                   />
                 </div>
               )}
             </Form>
           </Modal.Body>
-          <Modal.Footer className="justify-content-center">
-            <Button variant="secondary text-white" onClick={() => setShowAddModal(false)}>
+          <Modal.Footer className="justify-content-center border-0">
+            <Button
+              variant="outline-secondary"
+              onClick={() => updateState({ showAddModal: false })}
+              className="rounded-pill px-4"
+            >
               Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleAddCategory}
-              disabled={!newLabel || !newLabelAr || !newImageFile}
+              disabled={!state.newNameEn || !state.newNameAr || !state.newImageFile}
+              className="rounded-pill px-4"
             >
               Add Category
             </Button>
           </Modal.Footer>
         </Modal>
 
+        {/* Edit Image Modal */}
         <Modal
-          show={showEditModal}
-          onHide={() => setShowEditModal(false)}
+          show={state.showEditModal}
+          onHide={() => updateState({ showEditModal: false })}
           centered
           size="lg"
           className="wow-modal"
         >
-          <Modal.Header closeButton>
-            <Modal.Title className="w-100 text-center">Edit Category</Modal.Title>
+          <Modal.Header closeButton className="border-0">
+            <Modal.Title className="w-100 text-center">Update Category Image</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="p-4">
+            <div className="text-center mb-4">
+              <h5>Current Image</h5>
+              <div className="bg-light rounded-lg p-2 mb-3">
+                <img
+                  src={state.editedImage}
+                  alt="Current category"
+                  className="img-fluid rounded"
+                  style={{ maxHeight: "150px" }}
+                />
+              </div>
+            </div>
             <Form>
-              <Row>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Label (English)</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editedLabel}
-                      onChange={(e) => setEditedLabel(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Label (Arabic)</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={editedLabelAr}
-                      onChange={(e) => setEditedLabelAr(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
               <Form.Group className="mb-3">
-                <Form.Label>Update Image</Form.Label>
+                <Form.Label>Select New Image</Form.Label>
                 <Form.Control
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setEditedImageFile(e.target.files[0])}
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      updateState({ editedImageFile: e.target.files[0] });
+                    }
+                  }}
+                  className="rounded"
                 />
               </Form.Group>
-              <div className="text-center mt-3">
-                <img
-                  src={editedImagePreview || editedImage}
-                  alt="Preview"
-                  className="img-fluid rounded"
-                  style={{ height: "100px", objectFit: "contain" }}
-                />
-              </div>
+              {state.editedImagePreview && (
+                <div className="text-center mt-3 bg-light rounded-lg p-2">
+                  <h6>New Image Preview:</h6>
+                  <img
+                    src={state.editedImagePreview}
+                    alt="Preview"
+                    className="img-fluid rounded"
+                    style={{ maxHeight: "150px" }}
+                  />
+                </div>
+              )}
             </Form>
           </Modal.Body>
-          <Modal.Footer className="justify-content-center">
-            <Button variant="secondary text-white" onClick={() => setShowEditModal(false)}>
+          <Modal.Footer className="justify-content-center border-0">
+            <Button
+              variant="outline-secondary"
+              onClick={() => updateState({ showEditModal: false })}
+              className="rounded-pill px-4"
+            >
               Cancel
             </Button>
             <Button
               variant="primary"
               onClick={handleSave}
-              disabled={!editedLabel || !editedLabelAr}
+              disabled={!state.editedImageFile}
+              className="rounded-pill px-4"
             >
-              Save Changes
+              Update Image
             </Button>
           </Modal.Footer>
         </Modal>

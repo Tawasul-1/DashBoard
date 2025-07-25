@@ -32,6 +32,20 @@ const CategoryService = {
     }
   },
 
+  async addNewCategory({ label, label_ar, imageFile }, token) {
+    try {
+      const formData = new FormData();
+      formData.append("label", label);
+      formData.append("label_ar", label_ar);
+      formData.append("image", imageFile);
+
+      return await this.createCategory(formData, token);
+    } catch (error) {
+      console.error("Error adding new category:", error);
+      throw error;
+    }
+  },
+
   async getAllCategories(token) {
     try {
       const response = await apiClient.get("/cards/categories/", {
@@ -64,7 +78,7 @@ const CategoryService = {
 
   async updateCategory(id, formData, token) {
     try {
-      const response = await apiClient.put(`/cards/categories/${id}/`, formData, {
+      const response = await apiClient.patch(`/cards/categories/${id}/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
